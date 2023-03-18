@@ -7,7 +7,7 @@ const Note = require('../models/noteModel');
 // @access  Private
 const getNotes = asyncHandler(async (req, res) => {
     const notes = await Note.find({});
-    res.json(notes);
+    res.status(200).json(notes);
 });
 
 // @desc    Post note
@@ -21,8 +21,8 @@ const postNote = asyncHandler(async (req, res) => {
     const note = await Note.create({
         title: req.body.title,
         content: req.body.content,
-        user: req.user._id});
-    res.status(201).json(note);
+    });
+    res.status(200).json(note);
 });
 
 // @desc    Update note

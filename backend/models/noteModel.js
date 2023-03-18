@@ -11,11 +11,11 @@ const noteSchema = mongoose.Schema({
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
+        required: false,
         ref: 'User'
     }
 }, {
     timestamps: true
 });
 
-const Note = mongoose.model('Note', noteSchema);
+module.exports = mongoose.model('Note', noteSchema);
