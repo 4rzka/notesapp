@@ -1,21 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/models/note.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
+
+import '../providers/notes_provider.dart';
 
 class AddNotePage extends StatefulWidget {
-  const AddNotePage({super.key});
+  final bool isUpdate;
+  final Note? note;
+  const AddNotePage({super.key, required this.isUpdate, this.note});
 
   @override
   State<AddNotePage> createState() => _AddNotePageState();
 }
 
 class _AddNotePageState extends State<AddNotePage> {
+  TextEditingController titleController = TextEditingController();
+  TextEditingController contentController = TextEditingController();
+
   final FocusNode noteFocus = FocusNode();
+
+  void addNewNote() {
+    Note newNote = Note(
+      id: const Uuid().v4(),
+      userid: "1",
+      title: titleController.text,
+      content: contentController.text,
+      date: DateTime.now(),
+    );
+
+    Provider.of<NotesProvider>(context, listen: false).addNote(newNote);
+    Navigator.pop(context);
+  }
+
+  void updateNote() {
+    Note updatedNote = Note(
+      id: widget.note!.id,
+      userid: widget.note!.userid,
+      title: titleController.text,
+      content: contentController.text,
+      date: DateTime.now(),
+    );
+
+    Provider.of<NotesProvider>(context, listen: false).updateNote(updatedNote);
+    Navigator.pop(context);
+  }
+
+  @override
+  void initState() {
+    if (widget.isUpdate) {
+      titleController.text = widget.note!.title;
+      contentController.text = widget.note!.content;
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           actions: [
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                if (widget.isUpdate) {
+                  updateNote();
+                } else {
+                  addNewNote();
+                }
+              },
               icon: const Icon(Icons.save),
             ),
           ],
@@ -29,7 +81,8 @@ class _AddNotePageState extends State<AddNotePage> {
           child: Column(
             children: [
               TextField(
-                autofocus: true,
+                controller: titleController,
+                autofocus: (widget.isUpdate) ? false : true,
                 onSubmitted: (val) {
                   if (val != '') {
                     noteFocus.requestFocus();
@@ -47,6 +100,7 @@ class _AddNotePageState extends State<AddNotePage> {
               Expanded(
                   child: TextField(
                 focusNode: noteFocus,
+                controller: contentController,
                 maxLines: null,
                 style: const TextStyle(
                   fontSize: 20,
