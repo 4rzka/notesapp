@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { getNotes, postNote, updateNote, deleteNote } = require('../controllers/noteController');
+const { protect } = require('../middleware/authMiddleware');
 
-router.route('/').get(getNotes).post(postNote);
-router.route('/:id').put(updateNote).delete(deleteNote);
+router.route('/').get(protect, getNotes).post(protect, postNote);
+router.route('/:id').put(protect, updateNote).delete(protect, deleteNote);
 
 module.exports = router;
