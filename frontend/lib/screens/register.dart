@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/login.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/providers/auth_provider.dart';
 
@@ -31,7 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await Provider.of<AuthProvider>(context, listen: false)
           .register(email, password, name);
 
-      Navigator.of(context).pushReplacementNamed('/notes');
+      Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
     } catch (error) {
       showDialog(
         context: context,

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:frontend/screens/register.dart';
+import 'package:frontend/screens/notes_homepage.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/login';
 
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -23,9 +25,38 @@ class _LoginScreenState extends State<LoginScreen> {
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
-        // TODO: Navigate to home screen or other appropriate screen
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Success!'),
+            content: const Text('You are now logged in.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Okay'),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+              )
+            ],
+          ),
+        );
+        //TODO: Navigate to notes homepage
       } catch (error) {
-        // TODO: handle error
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('An error occurred!'),
+            content: Text(error.toString()),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Okay'),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+              )
+            ],
+          ),
+        );
       }
     }
   }
@@ -76,6 +107,13 @@ class _LoginScreenState extends State<LoginScreen> {
               ElevatedButton(
                 onPressed: _submit,
                 child: const Text('Login'),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed(RegisterScreen.routeName);
+                },
+                child: const Text("Don't have an account? Register now!"),
               ),
             ],
           ),

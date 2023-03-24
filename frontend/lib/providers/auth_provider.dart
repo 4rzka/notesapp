@@ -1,86 +1,47 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:frontend/models/user.dart';
 import 'package:frontend/services/api_service.dart';
 
 class AuthProvider with ChangeNotifier {
+  late User _user;
+  final ApiService apiService;
   String? _token;
-  String? _userId;
-  DateTime? _expiryDate;
-  Timer? _authTimer;
+  String? get token => _token;
 
-  bool get isAuthenticated {
-    return token != null;
-  }
+  AuthProvider({required this.apiService});
 
-  bool get isLoggedIn {
-    return _token != null && _expiryDate != null && _userId != null;
-  }
+  User get user => _user;
 
-  String? get token {
-    if (_expiryDate != null &&
-        _expiryDate!.isAfter(DateTime.now()) &&
-        _token != null) {
-      return _token;
+  bool get isAuthenticated => _token != null;
+
+  Future<void> login(String email, String password) async {
+    try {
+      final apiService = ApiService();
+      final response = await apiService.login(email, password);
+      if (response.containsKey('token')) {
+        _token = response['token'];
+        notifyListeners();
+      }
+    } catch (error) {
+      throw error;
     }
-    return null;
-  }
-
-  String? get userId {
-    return _userId;
   }
 
   Future<void> register(String email, String password, String name) async {
     try {
       final response = await ApiService.register(email, password, name);
-      if (response.statusCode == 201) {
-        final responseData = response.body;
-        // TODO: process the response data and store the user credentials
+      if (response.containsKey('_id') && response.containsKey('token')) {
+        _user = User(
+          id: response['_id'],
+          email: email,
+          name: name,
+          password: password,
+        );
+        _token = response['token'];
         notifyListeners();
-      } else {
-        // TODO: handle error response
       }
     } catch (error) {
-      // TODO: handle error
+      throw error;
     }
-  }
-
-  Future<void> login(String email, String password) async {
-    try {
-      final response = await ApiService.login(email, password);
-      if (response.statusCode == 200) {
-        final responseData = response.body;
-        // TODO: process the response data and store the user credentials
-        notifyListeners();
-      } else {
-        // TODO: handle error response
-      }
-    } catch (error) {
-      // TODO: handle error
-    }
-  }
-
-  Future<void> logout() async {
-    _token = null;
-    _userId = null;
-    _expiryDate = null;
-    if (_authTimer != null) {
-      _authTimer!.cancel();
-      _authTimer = null;
-    }
-    notifyListeners();
-  }
-
-  void _autoLogout() {
-    if (_authTimer != null) {
-      _authTimer!.cancel();
-    }
-    final timeToExpiry = _expiryDate!.difference(DateTime.now()).inSeconds;
-    _authTimer = Timer(Duration(seconds: timeToExpiry), logout);
-  }
-
-  Future<void> autoLogin() async {
-    // TODO: check if there are saved user credentials and auto-login
-    notifyListeners();
   }
 }

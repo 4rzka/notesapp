@@ -36,23 +36,40 @@ class ApiService {
     return notes;
   }
 
-  static Future<http.Response> login(String email, String password) async {
-    Uri requestUrl = Uri.parse(_loginUrl);
-    var response = await http.post(requestUrl, body: {
-      'email': email,
-      'password': password,
-    });
-    return response;
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    final response = await http.post(
+      Uri.parse(_loginUrl),
+      headers: <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode(<String, String>{
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      return responseData;
+    } else {
+      throw Exception('Failed to log in');
+    }
   }
 
-  static Future<http.Response> register(
+  static Future<Map<String, dynamic>> register(
       String email, String password, String name) async {
-    Uri requestUrl = Uri.parse(_registerUrl);
-    var response = await http.post(requestUrl, body: {
-      'email': email,
-      'password': password,
-      'name': name,
-    });
-    return response;
+    final response = await http.post(Uri.parse(_registerUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+          'name': name,
+        }));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to register user');
+    }
   }
 }

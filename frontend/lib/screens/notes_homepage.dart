@@ -5,6 +5,7 @@ import '../models/note.dart';
 import 'addnote.dart';
 
 class NotesHomePage extends StatefulWidget {
+  static const routeName = '/notes';
   const NotesHomePage({Key? key}) : super(key: key);
 
   @override

@@ -2,11 +2,15 @@ class User {
   String name;
   String email;
   String password;
+  String? id;
+  String? token;
 
   User({
     required this.name,
     required this.email,
     required this.password,
+    this.id,
+    this.token,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
