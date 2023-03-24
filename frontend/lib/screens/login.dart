@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/auth_provider.dart';
+import 'package:frontend/providers/notes_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/screens/register.dart';
 import 'package:frontend/screens/notes_homepage.dart';
@@ -18,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _submit() async {
+  Future<Consumer<AuthProvider>> _submit() async {
     if (_formKey.currentState!.validate()) {
       try {
         await Provider.of<AuthProvider>(context, listen: false).login(
@@ -35,12 +36,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: const Text('Okay'),
                 onPressed: () {
                   Navigator.of(ctx).pop();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Consumer<AuthProvider>(
+                              builder: (ctx, auth, _) => auth.isAuthenticated
+                                  ? const NotesHomePage()
+                                  : const LoginScreen(),
+                            )),
+                  );
                 },
               )
             ],
           ),
         );
-        //TODO: Navigate to notes homepage
       } catch (error) {
         showDialog(
           context: context,
@@ -59,6 +68,10 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     }
+    return Consumer<AuthProvider>(
+      builder: (ctx, auth, _) =>
+          auth.isAuthenticated ? const NotesHomePage() : const LoginScreen(),
+    );
   }
 
   @override

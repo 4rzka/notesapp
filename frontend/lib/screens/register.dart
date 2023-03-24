@@ -30,8 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       await Provider.of<AuthProvider>(context, listen: false)
-          .register(email, password, name);
-
+          .register(name, email, password);
       Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
     } catch (error) {
       showDialog(

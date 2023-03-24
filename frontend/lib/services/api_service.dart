@@ -4,7 +4,7 @@ import 'package:frontend/models/note.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String _baseUrl = 'localhost:5000/api';
+  static const String _baseUrl = 'http://192.168.0.29:5000/api';
   static const String _loginUrl = '$_baseUrl/users/login';
   static const String _registerUrl = '$_baseUrl/users/';
 
@@ -48,6 +48,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
+      log(responseData.toString());
       return responseData;
     } else {
       throw Exception('Failed to log in');
@@ -66,7 +67,7 @@ class ApiService {
           'name': name,
         }));
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to register user');
