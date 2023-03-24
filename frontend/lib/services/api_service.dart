@@ -21,7 +21,7 @@ class ApiService {
   }
 
   static Future<List<Note>> fetchNotes(String userid) async {
-    Uri requestUrl = Uri.parse('$_baseUrl/notes/$userid');
+    Uri requestUrl = Uri.parse('$_baseUrl/notes');
     var response = await http.get(requestUrl);
     var decoded = jsonDecode(response.body);
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/notes_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:frontend/pages/homepage.dart';
+import 'package:frontend/pages/notes_homepage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: HomePage(),
+        home: NotesHomePage(),
       ),
     );
   }

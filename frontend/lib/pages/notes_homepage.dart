@@ -4,14 +4,14 @@ import 'package:provider/provider.dart';
 import '../models/note.dart';
 import 'addnote.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class NotesHomePage extends StatefulWidget {
+  const NotesHomePage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<NotesHomePage> createState() => _NotesHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _NotesHomePageState extends State<NotesHomePage> {
   @override
   Widget build(BuildContext context) {
     NotesProvider notesProvider = Provider.of<NotesProvider>(context);
@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> {
             ? SafeArea(
                 child: (notesProvider.notes.isNotEmpty)
                     ? GridView.builder(
+                        shrinkWrap: true,
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2),
