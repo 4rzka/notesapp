@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/note.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 
 import '../providers/notes_provider.dart';
 
@@ -22,11 +21,8 @@ class _AddNotePageState extends State<AddNotePage> {
 
   void addNewNote() {
     Note newNote = Note(
-      id: const Uuid().v4(),
-      userid: "1",
       title: titleController.text,
       content: contentController.text,
-      date: DateTime.now(),
     );
 
     Provider.of<NotesProvider>(context, listen: false).addNote(newNote);
@@ -36,10 +32,8 @@ class _AddNotePageState extends State<AddNotePage> {
   void updateNote() {
     Note updatedNote = Note(
       id: widget.note!.id,
-      userid: widget.note!.userid,
       title: titleController.text,
       content: contentController.text,
-      date: DateTime.now(),
     );
 
     Provider.of<NotesProvider>(context, listen: false).updateNote(updatedNote);

@@ -61,7 +61,7 @@ class _NotesHomePageState extends State<NotesHomePage> {
                                   Text(currentNote.content,
                                       maxLines: 4,
                                       overflow: TextOverflow.ellipsis),
-                                  Text(currentNote.date.toString()),
+                                  //Text(currentNote.createdAt.toString()),
                                 ],
                               ),
                             ),

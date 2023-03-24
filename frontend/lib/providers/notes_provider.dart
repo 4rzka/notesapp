@@ -7,17 +7,17 @@ class NotesProvider with ChangeNotifier {
   bool isLoading = true;
 
   NotesProvider() {
-    fetchNotes("1");
+    fetchNotes();
   }
 
-  void sortNotes() {
-    notes.sort((a, b) => b.date.compareTo(a.date));
-    notifyListeners();
-  }
+  // void sortNotes() {
+  //   notes.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  //   notifyListeners();
+  // }
 
   void addNote(Note note) {
     notes.add(note);
-    sortNotes();
+    //sortNotes();
     notifyListeners();
     ApiService.addNote(note);
   }
@@ -26,7 +26,7 @@ class NotesProvider with ChangeNotifier {
     int noteIndex =
         notes.indexOf(notes.firstWhere((element) => element.id == note.id));
     notes[noteIndex] = note;
-    sortNotes();
+    //sortNotes();
     notifyListeners();
   }
 
@@ -34,14 +34,14 @@ class NotesProvider with ChangeNotifier {
     int noteIndex =
         notes.indexOf(notes.firstWhere((element) => element.id == note.id));
     notes.removeAt(noteIndex);
-    sortNotes();
+    //sortNotes();
     notifyListeners();
     ApiService.deleteNote(note);
   }
 
-  void fetchNotes(String userid) async {
-    notes = await ApiService.fetchNotes(userid);
-    sortNotes();
+  void fetchNotes() async {
+    notes = await ApiService.fetchNotes();
+    //sortNotes();
     isLoading = false;
     notifyListeners();
   }
