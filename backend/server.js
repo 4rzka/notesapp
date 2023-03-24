@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const colors = require('colors');
 const dotenv = require('dotenv').config();
 const { errorHandler } = require('./middleware/errorMiddleware');
@@ -9,6 +10,9 @@ connectDB();
 
 const app = express();
 
+app.use(cors({
+    origin: '*', // allow to server to accept request from different origin
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
