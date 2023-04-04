@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/auth_provider.dart';
-import 'package:frontend/providers/notes_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/screens/register.dart';
 import 'package:frontend/screens/notes_homepage.dart';
+
+import '../providers/notes_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/login';
@@ -19,36 +20,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  Future<Consumer<AuthProvider>> _submit() async {
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       try {
         await Provider.of<AuthProvider>(context, listen: false).login(
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
-        showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Success!'),
-            content: const Text('You are now logged in.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Okay'),
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Consumer<AuthProvider>(
-                              builder: (ctx, auth, _) => auth.isAuthenticated
-                                  ? const NotesHomePage()
-                                  : const LoginScreen(),
-                            )),
-                  );
-                },
-              )
-            ],
-          ),
+
+        // Navigate to NotesHomePage on successful login
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const NotesHomePage()),
         );
       } catch (error) {
         showDialog(
@@ -68,10 +51,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     }
-    return Consumer<AuthProvider>(
-      builder: (ctx, auth, _) =>
-          auth.isAuthenticated ? const NotesHomePage() : const LoginScreen(),
-    );
   }
 
   @override

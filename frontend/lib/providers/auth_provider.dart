@@ -14,16 +14,20 @@ class AuthProvider with ChangeNotifier {
 
   bool get isAuthenticated => _token != null;
 
-  Future<void> login(String email, String password) async {
+  Future<String> login(String email, String password) async {
     try {
       final apiService = ApiService();
-      final response = await apiService.login(email, password);
+      final response = await ApiService.login(email, password);
       if (response.containsKey('token')) {
-        _token = response['token'];
+        final token = response['token'];
+        ApiService.setToken(token); // Set the token in the ApiService
         notifyListeners();
+        return token;
+      } else {
+        throw Exception('Invalid response from server');
       }
     } catch (error) {
-      throw error;
+      rethrow;
     }
   }
 

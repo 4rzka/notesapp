@@ -32,6 +32,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await Provider.of<AuthProvider>(context, listen: false)
           .register(name, email, password);
       Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Success!'),
+          content: const Text('You have successfully registered.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Okay'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            )
+          ],
+        ),
+      );
     } catch (error) {
       showDialog(
         context: context,

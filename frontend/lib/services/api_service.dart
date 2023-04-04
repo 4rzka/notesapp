@@ -2,11 +2,16 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:frontend/models/note.dart';
 import 'package:http/http.dart' as http;
+import 'dart:core';
 
 class ApiService {
-  static const String _baseUrl = 'http://192.168.0.29:5000/api';
+  static const String _baseUrl = 'http://192.168.38.183:5000/api';
   static const String _loginUrl = '$_baseUrl/users/login';
   static const String _registerUrl = '$_baseUrl/users/';
+  static String? token;
+  static final Map<String, String> _headers = {
+    'Content-Type': 'application/json',
+  };
 
   static Future<void> addNote(Note note) async {
     Uri requestUrl = Uri.parse('$_baseUrl/notes');
@@ -24,7 +29,9 @@ class ApiService {
 
   static Future<List<Note>> fetchNotes() async {
     Uri requestUrl = Uri.parse('$_baseUrl/notes');
-    var response = await http.get(requestUrl);
+    var response = await http.get(requestUrl, headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+    });
     var decoded = jsonDecode(response.body);
 
     List<Note> notes = [];
@@ -36,7 +43,8 @@ class ApiService {
     return notes;
   }
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  static Future<Map<String, dynamic>> login(
+      String email, String password) async {
     final response = await http.post(
       Uri.parse(_loginUrl),
       headers: <String, String>{'Content-Type': 'application/json'},
@@ -48,11 +56,17 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
-      log(responseData.toString());
       return responseData;
+    }
+    if (response.statusCode == 401) {
+      throw Exception('Invalid email or password');
     } else {
       throw Exception('Failed to log in');
     }
+  }
+
+  static void setToken(String token) {
+    _headers['Authorization'] = 'Bearer $token';
   }
 
   static Future<Map<String, dynamic>> register(
