@@ -28,6 +28,7 @@ class NotesProvider with ChangeNotifier {
     notes[noteIndex] = note;
     //sortNotes();
     notifyListeners();
+    ApiService.updateNote(note);
   }
 
   void deleteNote(Note note) {
@@ -36,7 +37,7 @@ class NotesProvider with ChangeNotifier {
     notes.removeAt(noteIndex);
     //sortNotes();
     notifyListeners();
-    ApiService.deleteNote(note);
+    ApiService.deleteNote(note.id);
   }
 
   void fetchNotes() async {

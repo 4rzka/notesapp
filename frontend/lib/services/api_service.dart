@@ -15,16 +15,27 @@ class ApiService {
 
   static Future<void> addNote(Note note) async {
     Uri requestUrl = Uri.parse('$_baseUrl/notes');
-    var response = await http.post(requestUrl, body: note.toJson());
-    var decoded = jsonDecode(response.body);
-    log(decoded.toString());
+    var response =
+        await http.post(requestUrl, body: jsonEncode(note.toJson()), headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+      'Content-Type': 'application/json',
+    });
   }
 
-  static Future<void> deleteNote(Note note) async {
+  static Future<void> deleteNote(noteId) async {
+    Uri requestUrl = Uri.parse('$_baseUrl/notes/$noteId');
+    var response = await http.delete(requestUrl, headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+    });
+  }
+
+  static Future<void> updateNote(Note note) async {
     Uri requestUrl = Uri.parse('$_baseUrl/notes/${note.id}');
-    var response = await http.delete(requestUrl);
-    var decoded = jsonDecode(response.body);
-    log(decoded.toString());
+    var response =
+        await http.put(requestUrl, body: json.encode(note.toJson()), headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+      'Content-Type': 'application/json',
+    });
   }
 
   static Future<List<Note>> fetchNotes() async {
@@ -33,10 +44,15 @@ class ApiService {
       'Authorization': 'Bearer ${ApiService.token}',
     });
     var decoded = jsonDecode(response.body);
-
     List<Note> notes = [];
-    for (var noteMap in decoded) {
-      Note newNote = Note.fromJson(noteMap);
+
+    if (decoded is List) {
+      for (var noteMap in decoded) {
+        Note newNote = Note.fromJson(noteMap.cast<String, dynamic>());
+        notes.add(newNote);
+      }
+    } else if (decoded is Map) {
+      Note newNote = Note.fromJson(decoded.cast<String, dynamic>());
       notes.add(newNote);
     }
 
@@ -56,6 +72,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
+      token = responseData['token'];
       return responseData;
     }
     if (response.statusCode == 401) {

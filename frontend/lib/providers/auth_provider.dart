@@ -16,7 +16,6 @@ class AuthProvider with ChangeNotifier {
 
   Future<String> login(String email, String password) async {
     try {
-      final apiService = ApiService();
       final response = await ApiService.login(email, password);
       if (response.containsKey('token')) {
         final token = response['token'];
@@ -24,7 +23,7 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
         return token;
       } else {
-        throw Exception('Invalid response from server');
+        throw Exception('Token not found in response');
       }
     } catch (error) {
       rethrow;

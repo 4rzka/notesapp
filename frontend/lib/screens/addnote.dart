@@ -24,7 +24,6 @@ class _AddNotePageState extends State<AddNotePage> {
       title: titleController.text,
       content: contentController.text,
     );
-
     Provider.of<NotesProvider>(context, listen: false).addNote(newNote);
     Navigator.pop(context);
   }
@@ -56,6 +55,11 @@ class _AddNotePageState extends State<AddNotePage> {
           actions: [
             IconButton(
               onPressed: () {
+                // title and content should not be empty
+                if (titleController.text == '' ||
+                    contentController.text == '') {
+                  return;
+                }
                 if (widget.isUpdate) {
                   updateNote();
                 } else {

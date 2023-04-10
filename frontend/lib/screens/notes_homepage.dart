@@ -18,7 +18,7 @@ class _NotesHomePageState extends State<NotesHomePage> {
     NotesProvider notesProvider = Provider.of<NotesProvider>(context);
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Home Page'),
+          title: const Text('Notes'),
         ),
         body: (notesProvider.isLoading == false)
             ? SafeArea(
