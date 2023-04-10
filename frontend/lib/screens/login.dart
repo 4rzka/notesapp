@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:frontend/screens/register.dart';
 import 'package:frontend/screens/notes_homepage.dart';
 
-import '../providers/notes_provider.dart';
-
 class LoginScreen extends StatefulWidget {
   static const routeName = '/login';
 
@@ -23,16 +21,17 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       try {
-        await Provider.of<AuthProvider>(context, listen: false).login(
+        await Provider.of<AuthProvider>(context, listen: false)
+            .login(
           _emailController.text.trim(),
           _passwordController.text.trim(),
-        );
-
-        // Navigate to NotesHomePage on successful login
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const NotesHomePage()),
-        );
+        )
+            .then((_) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const NotesHomePage()),
+          );
+        });
       } catch (error) {
         showDialog(
           context: context,
