@@ -13,79 +13,220 @@ class NotesHomePage extends StatefulWidget {
 }
 
 class _NotesHomePageState extends State<NotesHomePage> {
+  String _searchQuery = '';
+
   @override
   Widget build(BuildContext context) {
     NotesProvider notesProvider = Provider.of<NotesProvider>(context);
+    List<Note> filteredNotes = notesProvider.notes
+        .where((note) => note.title.contains(_searchQuery))
+        .toList(); // Filter notes based on search query
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Notes'),
-        ),
-        body: (notesProvider.isLoading == false)
-            ? SafeArea(
-                child: (notesProvider.notes.isNotEmpty)
-                    ? GridView.builder(
-                        shrinkWrap: true,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2),
-                        itemCount: notesProvider.notes.length,
-                        itemBuilder: (context, index) {
-                          Note currentNote = notesProvider.notes[index];
+      appBar: AppBar(
+        title: const Text('Notes'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              String? result = await showSearch(
+                context: context,
+                delegate: NoteSearchDelegate(notesProvider.notes),
+              );
+              if (result != null) {
+                setState(() {
+                  _searchQuery = result;
+                });
+              }
+            },
+            icon: const Icon(Icons.search),
+          ),
+        ],
+      ),
+      body: (notesProvider.isLoading == false)
+          ? SafeArea(
+              child: (notesProvider.notes.isNotEmpty)
+                  ? GridView.builder(
+                      shrinkWrap: true,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio:
+                            0.75, // Adjust the aspect ratio for the cards
+                      ),
+                      itemCount: notesProvider.notes.length,
+                      itemBuilder: (context, index) {
+                        Note currentNote = notesProvider.notes[index];
 
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      fullscreenDialog: true,
-                                      builder: (context) => AddNotePage(
-                                            isUpdate: true,
-                                            note: currentNote,
-                                          )));
-                            },
-                            onLongPress: () {
-                              notesProvider.deleteNote(currentNote);
-                            },
-                            child: Container(
-                              color: Colors.blue,
-                              margin: const EdgeInsets.all(10),
-                              child: Column(
-                                children: [
-                                  Text(
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                fullscreenDialog: true,
+                                builder: (context) => AddNotePage(
+                                  isUpdate: true,
+                                  note: currentNote,
+                                ),
+                              ),
+                            );
+                          },
+                          onLongPress: () {
+                            notesProvider.deleteNote(currentNote);
+                          },
+                          child: Container(
+                            color: Colors.blue,
+                            margin: const EdgeInsets.all(10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    currentNote.title,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
+                                      fontSize: 18,
                                     ),
-                                    currentNote.title,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  Text(currentNote.content,
-                                      maxLines: 4,
-                                      overflow: TextOverflow.ellipsis),
-                                  //Text(currentNote.createdAt.toString()),
-                                ],
-                              ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    currentNote.content,
+                                    style: const TextStyle(fontSize: 14),
+                                    maxLines: 4,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      )
-                    : const Center(
-                        child: Text('No notes found'),
-                      ))
-            : const Center(
-                child: CircularProgressIndicator(),
+                          ),
+                        );
+                      },
+                    )
+                  : const Center(
+                      child: Text('No notes found'),
+                    ),
+            )
+          : const Center(
+              child: CircularProgressIndicator(),
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              fullscreenDialog: true,
+              builder: (context) => const AddNotePage(
+                isUpdate: false,
               ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class NoteSearchDelegate extends SearchDelegate<String> {
+  final List<Note> notes;
+
+  NoteSearchDelegate(this.notes);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = ''; // Clear search query
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, ''); // Close search delegate with empty result
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    List<Note> filteredNotes = notes
+        .where((note) => note.title.contains(query))
+        .toList(); // Filter notes based on search query
+    return ListView.builder(
+      itemCount: filteredNotes.length,
+      itemBuilder: (context, index) {
+        Note currentNote = filteredNotes[index];
+        return GestureDetector(
+          onTap: () {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    fullscreenDialog: true,
-                    builder: (context) => const AddNotePage(
-                          isUpdate: false,
-                        )));
+              context,
+              MaterialPageRoute(
+                fullscreenDialog: true,
+                builder: (context) => AddNotePage(
+                  isUpdate: true,
+                  note: currentNote,
+                ),
+              ),
+            );
           },
-          child: const Icon(Icons.add),
-        ));
+          child: Container(
+            color: Colors.blue,
+            margin: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    currentNote.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    currentNote.content,
+                    style: const TextStyle(fontSize: 14),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // Show suggestions based on search query
+    List<Note> filteredNotes =
+        notes.where((note) => note.title.contains(query)).toList();
+    return ListView.builder(
+      itemCount: filteredNotes.length,
+      itemBuilder: (context, index) => ListTile(
+        title: Text(filteredNotes[index].title),
+        onTap: () {
+          close(context, filteredNotes[index].title);
+        },
+      ),
+    );
   }
 }
