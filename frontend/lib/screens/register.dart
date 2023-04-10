@@ -30,8 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       await Provider.of<AuthProvider>(context, listen: false)
-          .register(name, email, password);
-      Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
+          .register(email, password, name);
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -46,7 +45,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             )
           ],
         ),
-      );
+      ).then((_) {
+        Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
+      });
     } catch (error) {
       showDialog(
         context: context,
