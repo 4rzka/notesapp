@@ -78,7 +78,7 @@ const deleteNote = asyncHandler(async (req, res) => {
         throw new Error('Not authorized to update note');
     }
 
-    await note.remove();
+    await Note.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Note removed' });
 });
 
