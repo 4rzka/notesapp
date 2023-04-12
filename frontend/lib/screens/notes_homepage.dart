@@ -41,6 +41,39 @@ class _NotesHomePageState extends State<NotesHomePage> {
           ),
         ],
       ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            const DrawerHeader(
+              child: Text('Notes'),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+            ),
+            ListTile(
+              title: const Text('All Notes'),
+              onTap: () {
+                setState(() {
+                  _searchQuery = '';
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Add tag'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
       body: (notesProvider.isLoading == false)
           ? SafeArea(
               child: (notesProvider.notes.isNotEmpty)
