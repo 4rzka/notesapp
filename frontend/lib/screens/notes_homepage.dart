@@ -70,7 +70,30 @@ class _NotesHomePageState extends State<NotesHomePage> {
                             );
                           },
                           onLongPress: () {
-                            notesProvider.deleteNote(currentNote);
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Delete Note'),
+                                    content: const Text(
+                                        'Are you sure you want to delete this note?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          notesProvider.deleteNote(currentNote);
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Delete'),
+                                      ),
+                                    ],
+                                  );
+                                });
                           },
                           child: Container(
                             color: Colors.blue,

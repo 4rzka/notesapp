@@ -23,6 +23,8 @@ class _AddNotePageState extends State<AddNotePage> {
     Note newNote = Note(
       title: titleController.text,
       content: contentController.text,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
     );
     Provider.of<NotesProvider>(context, listen: false).addNote(newNote);
     Navigator.pop(context);
@@ -33,6 +35,8 @@ class _AddNotePageState extends State<AddNotePage> {
       id: widget.note!.id,
       title: titleController.text,
       content: contentController.text,
+      createdAt: widget.note!.createdAt,
+      updatedAt: DateTime.now(),
     );
 
     Provider.of<NotesProvider>(context, listen: false).updateNote(updatedNote);
