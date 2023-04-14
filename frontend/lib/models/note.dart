@@ -13,6 +13,7 @@ class Note {
     required this.content,
     required this.createdAt,
     required this.updatedAt,
+    this.tags,
     this.user,
   });
 
@@ -20,6 +21,7 @@ class Note {
   String title;
   String content;
   String? user;
+  List<String>? tags;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -28,6 +30,7 @@ class Note {
         title: json["title"] ?? '',
         content: json["content"] ?? '',
         user: json["user"],
+        tags: List<String>.from(json["tags"].map((x) => x)),
         createdAt: DateTime.parse(json["createdAt"]),
         updatedAt: DateTime.parse(json["updatedAt"]),
       );
@@ -37,5 +40,6 @@ class Note {
         "title": title,
         "content": content,
         "user": user,
+        "tags": tags != null ? List<dynamic>.from(tags!.map((x) => x)) : [],
       };
 }

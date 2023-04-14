@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/notes_provider.dart';
+import 'package:frontend/screens/addtag.dart';
 import 'package:provider/provider.dart';
 import '../models/note.dart';
 import 'addnote.dart';
@@ -45,10 +46,10 @@ class _NotesHomePageState extends State<NotesHomePage> {
         child: ListView(
           children: [
             const DrawerHeader(
-              child: Text('Notes'),
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
+              child: Text('Notes'),
             ),
             ListTile(
               title: const Text('All Notes'),
@@ -62,7 +63,9 @@ class _NotesHomePageState extends State<NotesHomePage> {
             ListTile(
               title: const Text('Add tag'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const AddTagPage(isUpdate: false);
+                }));
               },
             ),
             ListTile(

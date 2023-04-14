@@ -1,13 +1,15 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:frontend/models/note.dart';
 import 'package:http/http.dart' as http;
 import 'dart:core';
+
+import '../models/tag.dart';
 
 class ApiService {
   static const String _baseUrl = 'http://192.168.38.183:5000/api';
   static const String _loginUrl = '$_baseUrl/users/login';
   static const String _registerUrl = '$_baseUrl/users/';
+  static const String _tagsUrl = '$_baseUrl/tags';
   static String? token;
   static final Map<String, String> _headers = {
     'Content-Type': 'application/json',
@@ -15,11 +17,15 @@ class ApiService {
 
   static Future<void> addNote(Note note) async {
     Uri requestUrl = Uri.parse('$_baseUrl/notes');
+    print('Request URL: $requestUrl');
+    print('Request Body: ${note.toJson()}');
     var response =
         await http.post(requestUrl, body: jsonEncode(note.toJson()), headers: {
       'Authorization': 'Bearer ${ApiService.token}',
       'Content-Type': 'application/json',
     });
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
   }
 
   static Future<void> deleteNote(noteId) async {
@@ -103,5 +109,51 @@ class ApiService {
     } else {
       throw Exception('Failed to register user');
     }
+  }
+
+  static Future<List<Tag>> fetchTags() async {
+    Uri requestUrl = Uri.parse(_tagsUrl);
+    var response = await http.get(requestUrl, headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+    });
+    var decoded = jsonDecode(response.body);
+    List<Tag> tags = [];
+
+    if (decoded is List) {
+      for (var tagMap in decoded) {
+        Tag newTag = Tag.fromJson(tagMap.cast<String, dynamic>());
+        tags.add(newTag);
+      }
+    } else if (decoded is Map) {
+      Tag newTag = Tag.fromJson(decoded.cast<String, dynamic>());
+      tags.add(newTag);
+    }
+
+    return tags;
+  }
+
+  static Future<void> addTag(Tag tag) async {
+    Uri requestUrl = Uri.parse('$_baseUrl/tags');
+    var response =
+        await http.post(requestUrl, body: jsonEncode(tag.toJson()), headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+      'Content-Type': 'application/json',
+    });
+  }
+
+  static Future<void> updateTag(Tag tag) async {
+    Uri requestUrl = Uri.parse('$_tagsUrl/${tag.id}');
+    var response =
+        await http.put(requestUrl, body: json.encode(tag.toJson()), headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+      'Content-Type': 'application/json',
+    });
+  }
+
+  static Future<void> deleteTag(tagId) async {
+    Uri requestUrl = Uri.parse('$_tagsUrl/$tagId');
+    var response = await http.delete(requestUrl, headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+    });
   }
 }

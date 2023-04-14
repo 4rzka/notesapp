@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/notes_provider.dart';
+import 'package:frontend/providers/tag_provider.dart';
 import 'package:frontend/screens/notes_homepage.dart';
 import 'package:frontend/screens/login.dart';
 import 'package:frontend/screens/register.dart';
@@ -21,6 +22,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<NotesProvider>(
           create: (_) => NotesProvider(),
+        ),
+        ChangeNotifierProvider<TagProvider>(
+          create: (_) => TagProvider(),
         ),
       ],
       child: MaterialApp(
