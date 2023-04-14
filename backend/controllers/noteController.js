@@ -22,7 +22,7 @@ const postNote = asyncHandler(async (req, res) => {
     const note = await Note.create({
         title: req.body.title,
         content: req.body.content,
-        tags: req.body.tags ? req.body.tags.split(',').map((tag) => tag.trim()) : [],
+        tags: req.body.tags,
         user: req.user.id
     });
     res.status(200).json(note);
