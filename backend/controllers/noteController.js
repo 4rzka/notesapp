@@ -22,7 +22,7 @@ const postNote = asyncHandler(async (req, res) => {
     const note = await Note.create({
         title: req.body.title,
         content: req.body.content,
-        tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
+        tags: req.body.tags ? req.body.tags.split(',').map((tag) => tag.trim()) : [],
         user: req.user.id
     });
     res.status(200).json(note);
@@ -53,7 +53,7 @@ const updateNote = asyncHandler(async (req, res) => {
     const updatedNote = await Note.findByIdAndUpdate(req.params.id, {
         title: req.body.title,
         content: req.body.content,
-        tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
+        tags: req.body.tags ? req.body.tags.split(',').map((tag) => tag.trim()) : []
     }, { new: true });
     res.status(200).json(updatedNote);
 });
