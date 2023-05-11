@@ -6,7 +6,7 @@ import 'dart:core';
 import '../models/tag.dart';
 
 class ApiService {
-  static const String _baseUrl = 'http://192.168.38.183:5000/api';
+  static const String _baseUrl = 'http://192.168.0.100:5000/api';
   static const String _loginUrl = '$_baseUrl/users/login';
   static const String _registerUrl = '$_baseUrl/users/';
   static const String _tagsUrl = '$_baseUrl/tags';
@@ -33,6 +33,8 @@ class ApiService {
     var response = await http.delete(requestUrl, headers: {
       'Authorization': 'Bearer ${ApiService.token}',
     });
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
   }
 
   static Future<void> updateNote(Note note) async {
@@ -42,6 +44,8 @@ class ApiService {
       'Authorization': 'Bearer ${ApiService.token}',
       'Content-Type': 'application/json',
     });
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
   }
 
   static Future<List<Note>> fetchNotes() async {

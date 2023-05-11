@@ -16,6 +16,12 @@ npm install
 npm run server
 ```
 
+### .env
+
+NODE_ENV 
+PORT 
+JWT_SECRET 
+JWT_EXPIRE
 
 
 

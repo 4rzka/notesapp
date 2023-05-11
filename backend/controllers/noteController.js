@@ -53,7 +53,10 @@ const updateNote = asyncHandler(async (req, res) => {
     const updatedNote = await Note.findByIdAndUpdate(req.params.id, {
         title: req.body.title,
         content: req.body.content,
-        tags: req.body.tags ? req.body.tags.split(',').map((tag) => tag.trim()) : []
+        tags: Array.isArray(req.body.tags) 
+        ? req.body.tags.map((tag) => tag.trim())
+        : (req.body.tags ? req.body.tags.split(',').map((tag) => tag.trim()) : [])
+        // tags: req.body.tags ? req.body.tags.split(',').map((tag) => tag.trim()) : []
     }, { new: true });
     res.status(200).json(updatedNote);
 });
