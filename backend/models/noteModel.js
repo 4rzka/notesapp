@@ -1,5 +1,16 @@
 const mongoose = require('mongoose');
 
+const subnoteSchema = mongoose.Schema({
+    title: {
+        type: String,
+        required: true
+    },
+    content: {
+        type: String,
+        required: true
+    }
+});
+
 const noteSchema = mongoose.Schema({
     title: {
         type: String,
@@ -16,7 +27,31 @@ const noteSchema = mongoose.Schema({
     },
     tags: [
         {
-            type: String
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Tag'
+        }
+    ],
+    contact: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Contact'
+    },
+    subnotes: [subnoteSchema],
+    isProject: {
+        type: Boolean,
+        default: false
+    },
+    isStarted: {
+        type: Boolean,
+        default: false
+    },
+    isPinned: {
+        type: Boolean,
+        default: false
+    },
+    todos: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Todo'
         }
     ]
 }, {

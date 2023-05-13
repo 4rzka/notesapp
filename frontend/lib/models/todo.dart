@@ -1,35 +1,38 @@
 import 'dart:convert';
 
-List<Tag> tagFromJson(String str) =>
-    List<Tag>.from(json.decode(str).map((x) => Tag.fromJson(x)));
+List<Todo> todoFromJson(String str) =>
+    List<Todo>.from(json.decode(str).map((x) => Todo.fromJson(x)));
 
-String tagToJson(List<Tag> data) =>
+String tagToJson(List<Todo> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
-class Tag {
+class Todo {
   String? id;
   String name;
   String? user;
   List<String>? notes;
+  bool? isChecked;
   DateTime? createdAt;
   DateTime? updatedAt;
   int? v;
 
-  Tag({
+  Todo({
     this.id,
     required this.name,
     this.user,
     this.notes,
+    this.isChecked,
     this.createdAt,
     this.updatedAt,
     this.v,
   });
 
-  factory Tag.fromJson(Map<String, dynamic> json) => Tag(
+  factory Todo.fromJson(Map<String, dynamic> json) => Todo(
         id: json["_id"],
         name: json["name"],
         user: json["user"],
         notes: List<String>.from(json["notes"].map((x) => x)),
+        isChecked: json["isChecked"],
         createdAt: DateTime.parse(json["createdAt"]),
         updatedAt: DateTime.parse(json["updatedAt"]),
         v: json["__v"],
@@ -39,7 +42,8 @@ class Tag {
         "_id": id,
         "name": name,
         "user": user,
-        "notes": notes != null ? List<dynamic>.from(notes!.map((x) => x)) : [],
+        "notes": List<dynamic>.from(notes!.map((x) => x)),
+        "isChecked": isChecked,
         "createdAt": createdAt != null ? createdAt!.toIso8601String() : "",
         "updatedAt": updatedAt != null ? updatedAt!.toIso8601String() : "",
         "__v": v,
