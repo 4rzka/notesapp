@@ -32,8 +32,8 @@ Backend Rest API
 |   name| description  | parameter   | request type|
 | ------------ | ------------ | ------------ | ------------ |
 |   /api/users |  Create new user |  `name` `email` `password`| POST |
-|   /api/users |  Authorize user |  `email` `password`| POST |
-|   /api/users |  Get user data|  `email` | GET |
+|   /api/users/login |  Authorize user |  `email` `password`| POST |
+|   /api/users/me |  Get user data|  `email` | GET |
 |   /api/notes |  Get all notes by user |  `id` | GET |
 |   /api/notes |  Create new note |  `title` `content`  `tags` | POST |
 |   /api/notes |  Update note |  `title` `content`  `tags` | PUT |
