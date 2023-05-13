@@ -2,6 +2,9 @@ const asyncHandler = require('express-async-handler');
 
 const Note = require('../models/noteModel');
 const User = require('../models/userModel');
+const Tag = require('../models/tagModel');
+const Todo = require('../models/todoModel');
+const { default: mongoose } = require('mongoose');
 
 // @desc    Get all notes
 // @route   GET /api/notes
@@ -19,12 +22,37 @@ const postNote = asyncHandler(async (req, res) => {
         res.status(400);
         throw new Error('Content is required');
     }
+
+    const { title, content, tags, todos } = req.body;
+
+    // create the note without tags and todos so that we can get the note id to add to tags and todos
     const note = await Note.create({
-        title: req.body.title,
-        content: req.body.content,
-        tags: req.body.tags,
+        title,
+        content,
         user: req.user.id
     });
+
+    // create new tags
+    const tagIds = await Promise.all(tags.map(async (tag) => {
+        const newTag = await Tag.create({ name: tag, user: req.user.id, notes: [note._id] });
+        return newTag._id;
+    }));
+
+    // create new todos
+    const todoIds = await Promise.all(todos.map(async (todo) => {
+        const newTodo = await Todo.create({ name: todo, user: req.user.id, isChecked: false, notes: [note._id] });
+        return newTodo._id;
+    }));
+
+    // add note id to tags and todos
+    await Tag.updateMany({ _id: { $in: tagIds } }, { $push: { notes: note._id } });
+    await Todo.updateMany({ _id: { $in: todoIds } }, { $push: { notes: note._id } });
+
+    // add tags and todos to note
+    note.tags = tagIds;
+    note.todos = todoIds;
+    await note.save();
+
     res.status(200).json(note);
 });
 
@@ -32,6 +60,7 @@ const postNote = asyncHandler(async (req, res) => {
 // @route   PUT /api/notes
 // @access  Private
 const updateNote = asyncHandler(async (req, res) => {
+    const { title, content, tags, todos } = req.body;
     const note = await Note.findById(req.params.id);
     if(!note) {
         res.status(404);
@@ -50,15 +79,42 @@ const updateNote = asyncHandler(async (req, res) => {
         throw new Error('Not authorized to update note');
     }
 
-    const updatedNote = await Note.findByIdAndUpdate(req.params.id, {
-        title: req.body.title,
-        content: req.body.content,
-        tags: Array.isArray(req.body.tags) 
-        ? req.body.tags.map((tag) => tag.trim())
-        : (req.body.tags ? req.body.tags.split(',').map((tag) => tag.trim()) : [])
-        // tags: req.body.tags ? req.body.tags.split(',').map((tag) => tag.trim()) : []
-    }, { new: true });
-    res.status(200).json(updatedNote);
+    // update tags
+    const existingTags = note.tags;
+    const newTagIds = [];
+
+    for (const tag of tags) {
+        let tagId;
+        if(existingTags.includes(tag)) {
+            tagId = tag;
+        } else {
+            const newTag = await Tag.create({ name: tag, user: req.user.id, notes: [note._id] });
+            tagId = newTag._id;
+        }
+        newTagIds.push(tagId);
+    }
+
+    note.tags = newTagIds;
+
+    // update todos
+    const existingTodos = note.todos;
+    const newTodoIds = [];
+
+    for (const todo of todos) {
+        let todoId;
+        if(existingTodos.includes(todo)) {
+            todoId = todo;
+        } else {
+            const newTodo = await Todo.create({ name: todo, user: req.user.id, isChecked: false, notes: [note._id] });
+            todoId = newTodo._id;
+        }
+        newTodoIds.push(todoId);
+    }
+
+    note.todos = newTodoIds;
+
+    await note.save();
+    res.status(200).json(note);
 });
 
 // @desc    Delete note
