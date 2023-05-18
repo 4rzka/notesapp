@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:frontend/models/note.dart';
 import 'package:http/http.dart' as http;
 import 'dart:core';
+import '../variables/variables.dart';
 
 import '../models/tag.dart';
 
 class ApiService {
-  static const String _baseUrl = 'http://192.168.0.100:5000/api';
+  static const String _baseUrl = '$hostUrl/api';
   static const String _loginUrl = '$_baseUrl/users/login';
   static const String _registerUrl = '$_baseUrl/users/';
   static const String _tagsUrl = '$_baseUrl/tags';
