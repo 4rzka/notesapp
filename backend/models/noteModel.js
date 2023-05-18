@@ -25,6 +25,12 @@ const noteSchema = mongoose.Schema({
         required: true,
         ref: 'User'
     },
+    sharedto: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
     tags: [
         {
             type: mongoose.Schema.Types.ObjectId,
