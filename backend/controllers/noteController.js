@@ -63,7 +63,7 @@ const postNote = asyncHandler(async (req, res) => {
 // @route   PUT /api/notes
 // @access  Private
 const updateNote = asyncHandler(async (req, res) => {
-    const { title, content, tags, todos } = req.body;
+    const { title, content, tags, todos, sharedto } = req.body;
     const note = await Note.findById(req.params.id);
     if(!note) {
         res.status(404);
@@ -85,7 +85,7 @@ const updateNote = asyncHandler(async (req, res) => {
     // update tags
     const existingTags = note.tags;
     const newTagIds = [];
-
+    
     for (const tag of tags) {
         let tagId;
         if(existingTags.includes(tag)) {
@@ -115,6 +115,20 @@ const updateNote = asyncHandler(async (req, res) => {
     }
 
     note.todos = newTodoIds;
+
+    // Sharedto is an array of user emails
+    // We need to find the user ids of the users with the emails in sharedto
+    // Then we add the user ids to the sharedto field of the note
+    const sharedtoUserIds = [];
+    for (const email of sharedto) {
+        const user = await User.findOne({ email });
+        if(!user) {
+            res.status(404);
+            throw new Error(`User with email ${email} not found`);
+        }
+        sharedtoUserIds.push(user._id);
+    }
+    note.sharedto = sharedtoUserIds;
 
     await note.save();
     res.status(200).json(note);
