@@ -119,6 +119,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   return null;
                 },
               ),
+              TextFormField(
+                decoration:
+                    const InputDecoration(labelText: 'Confirm Password'),
+                obscureText: true,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please confirm your password.';
+                  }
+                  if (value != _passwordController.text) {
+                    return 'Passwords do not match.';
+                  }
+                  return null;
+                },
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _submitForm,
