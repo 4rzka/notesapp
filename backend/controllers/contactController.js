@@ -36,19 +36,32 @@ const postContact = asyncHandler(async (req, res) => {
 const updateContact = asyncHandler(async (req, res) => {
     const { firstname, lastname, phone, email, address, contactType } = req.body;
     const contact = await Contact.findById(req.params.id);
-    if (contact) {
-        contact.firstname = firstname;
-        contact.lastname = lastname;
-        contact.phone = phone;
-        contact.email = email;
-        contact.address = address;
-        contact.contactType = contactType;
-        const updatedContact = await contact.save();
-        res.json(updatedContact);
-    } else {
+    if (!contact) {
         res.status(404);
         throw new Error('Contact not found');
     }
+
+    const user = await User.findById(req.user.id);
+
+    if(!user) {
+        res.status(401);
+        throw new Error('User not found');
+    }
+
+    if(contact.user.toString() !== user.id.toString()) {
+        res.status(402);
+        throw new Error('Not authorized to update contact');
+    }
+
+    contact.firstname = firstname;
+    contact.lastname = lastname;
+    contact.phone = phone;
+    contact.email = email;
+    contact.address = address;
+    contact.contactType = contactType;
+
+    const updatedContact = await contact.save();
+    res.status(200).json(updatedContact);
 }
 );
 
@@ -57,13 +70,25 @@ const updateContact = asyncHandler(async (req, res) => {
 // @access  Private
 const deleteContact = asyncHandler(async (req, res) => {
     const contact = await Contact.findById(req.params.id);
-    if (contact) {
-        await contact.remove();
-        res.json({ message: 'Contact removed' });
-    } else {
+    if (!contact) {
         res.status(404);
         throw new Error('Contact not found');
     }
+
+    const user = await User.findById(req.user.id);
+
+    if(!user) {
+        res.status(401);
+        throw new Error('User not found');
+    }
+
+    if(contact.user.toString() !== user.id.toString()) {
+        res.status(402);
+        throw new Error('Not authorized to update note');
+    }
+
+    await Contact.findByIdAndRemove(req.params.id);
+    res.status(200).json({ message: 'Contact removed' });
 }
 );
 
