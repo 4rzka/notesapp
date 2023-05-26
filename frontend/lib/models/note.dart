@@ -1,11 +1,5 @@
 import 'dart:convert';
 
-List<Note> noteFromJson(String str) =>
-    List<Note>.from(json.decode(str).map((x) => Note.fromJson(x)));
-
-String noteToJson(List<Note> data) =>
-    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
-
 class Note {
   Note({
     required this.title,
@@ -37,27 +31,36 @@ class Note {
   DateTime updatedAt;
   int? v;
 
-  factory Note.fromJson(Map<String, dynamic> json) => Note(
-        title: json["title"],
-        content: json["content"],
-        user: json["user"],
-        tags: json["tags"] != null
-            ? List<String>.from(json["tags"].map((x) => x))
-            : [],
-        isProject: json["isProject"],
-        isStarted: json["isStarted"],
-        isPinned: json["isPinned"],
-        todos: json["todos"] != null
-            ? List<String>.from(json["todos"].map((x) => x))
-            : [],
-        id: json["_id"],
-        subnotes: json["subnotes"] != null
-            ? List<dynamic>.from(json["subnotes"].map((x) => x))
-            : [],
-        createdAt: DateTime.parse(json["createdAt"]),
-        updatedAt: DateTime.parse(json["updatedAt"]),
-        v: json["__v"],
-      );
+  factory Note.fromJson(Map<String, dynamic> json) {
+    // Fetch the tag data and create a mapping of tag IDs to names
+    Map<String, String> tagIdToNameMap = {
+      'tag1': 'Tag 1',
+      'tag2': 'Tag 2',
+      // Add more tag ID to name mappings
+    };
+
+    return Note(
+      title: json["title"],
+      content: json["content"],
+      user: json["user"],
+      tags: json["tags"] != null
+          ? List<String>.from(json["tags"].map((x) => tagIdToNameMap[x] ?? ''))
+          : [],
+      isProject: json["isProject"],
+      isStarted: json["isStarted"],
+      isPinned: json["isPinned"],
+      todos: json["todos"] != null
+          ? List<String>.from(json["todos"].map((x) => x))
+          : [],
+      id: json["_id"],
+      subnotes: json["subnotes"] != null
+          ? List<dynamic>.from(json["subnotes"].map((x) => x))
+          : [],
+      createdAt: DateTime.parse(json["createdAt"]),
+      updatedAt: DateTime.parse(json["updatedAt"]),
+      v: json["__v"],
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         "title": title,
@@ -76,3 +79,9 @@ class Note {
         "__v": v,
       };
 }
+
+List<Note> noteFromJson(String str) =>
+    List<Note>.from(json.decode(str).map((x) => Note.fromJson(x)));
+
+String noteToJson(List<Note> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));

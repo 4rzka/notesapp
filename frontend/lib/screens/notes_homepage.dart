@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/notes_provider.dart';
+import 'package:frontend/screens/addcontact.dart';
 import 'package:frontend/screens/addtag.dart';
 import 'package:provider/provider.dart';
 import '../models/note.dart';
@@ -65,6 +66,14 @@ class _NotesHomePageState extends State<NotesHomePage> {
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return const AddTagPage(isUpdate: false);
+                }));
+              },
+            ),
+            ListTile(
+              title: const Text('Add contact'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const AddContact();
                 }));
               },
             ),

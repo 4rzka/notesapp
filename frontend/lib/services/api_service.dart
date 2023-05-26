@@ -3,7 +3,7 @@ import 'package:frontend/models/note.dart';
 import 'package:http/http.dart' as http;
 import 'dart:core';
 import '../variables/variables.dart';
-
+import '../models/contact.dart';
 import '../models/tag.dart';
 
 class ApiService {
@@ -11,6 +11,7 @@ class ApiService {
   static const String _loginUrl = '$_baseUrl/users/login';
   static const String _registerUrl = '$_baseUrl/users/';
   static const String _tagsUrl = '$_baseUrl/tags';
+  static const String _contactsUrl = '$_baseUrl/contacts';
   static String? token;
   static final Map<String, String> _headers = {
     'Content-Type': 'application/json',
@@ -160,5 +161,58 @@ class ApiService {
     var response = await http.delete(requestUrl, headers: {
       'Authorization': 'Bearer ${ApiService.token}',
     });
+  }
+
+  static Future<List<Contact>> fetchContacts() async {
+    Uri requestUrl = Uri.parse(_contactsUrl);
+    var response = await http.get(requestUrl, headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+    });
+    var decoded = jsonDecode(response.body);
+    List<Contact> contacts = [];
+
+    if (decoded is List) {
+      for (var contactMap in decoded) {
+        Contact newContact =
+            Contact.fromJson(contactMap.cast<String, dynamic>());
+        contacts.add(newContact);
+      }
+    } else if (decoded is Map) {
+      Contact newContact = Contact.fromJson(decoded.cast<String, dynamic>());
+      contacts.add(newContact);
+    }
+
+    return contacts;
+  }
+
+  static Future<void> addContact(Contact contact) async {
+    Uri requestUrl = Uri.parse(_contactsUrl);
+    var response = await http
+        .post(requestUrl, body: jsonEncode(contact.toJson()), headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+      'Content-Type': 'application/json',
+    });
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+  }
+
+  static Future<void> updateContact(Contact contact) async {
+    Uri requestUrl = Uri.parse('$_contactsUrl/${contact.id}');
+    var response = await http
+        .put(requestUrl, body: json.encode(contact.toJson()), headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+      'Content-Type': 'application/json',
+    });
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+  }
+
+  static Future<void> deleteContact(contactId) async {
+    Uri requestUrl = Uri.parse('$_contactsUrl/$contactId');
+    var response = await http.delete(requestUrl, headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+    });
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
   }
 }
