@@ -37,12 +37,6 @@ const noteSchema = mongoose.Schema({
             ref: 'Tag'
         }
     ],
-    contacts: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Contact'
-        }
-    ],
     subnotes: [subnoteSchema],
     isProject: {
         type: Boolean,
