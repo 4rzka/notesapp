@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '/models/todo.dart';
 
 class Note {
   Note({
@@ -24,7 +25,7 @@ class Note {
   bool? isProject;
   bool? isStarted;
   bool? isPinned;
-  List<String>? todos;
+  List<Todo>? todos;
   String? id;
   List<dynamic>? subnotes;
   DateTime createdAt;
@@ -50,7 +51,7 @@ class Note {
       isStarted: json["isStarted"],
       isPinned: json["isPinned"],
       todos: json["todos"] != null
-          ? List<String>.from(json["todos"].map((x) => x))
+          ? List<Todo>.from(json["todos"].map((x) => x))
           : [],
       id: json["_id"],
       subnotes: json["subnotes"] != null
