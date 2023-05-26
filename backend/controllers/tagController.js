@@ -15,6 +15,12 @@ const getTags = asyncHandler(async (req, res) => {
 // @access  Private
 const createTag = asyncHandler(async (req, res) => {
   const { name, notes } = req.body;
+  // check if tag already exists
+  const tagExists = await Tag.findOne({ name, user: req.user.id });
+  if (tagExists) {
+    res.status(400);
+    throw new Error('Tag already exists');
+  }
   const tag = await Tag.create({ name, user: req.user.id, notes });
 
   // add tag to notes
