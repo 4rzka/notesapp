@@ -104,6 +104,40 @@ class _AddContactState extends State<AddContact> {
                 decoration: const InputDecoration(labelText: 'Address'),
                 onSaved: (value) => _contact?.address = value,
               ),
+              DropdownButtonFormField(
+                decoration: const InputDecoration(labelText: 'Contact Type'),
+                items: const [
+                  DropdownMenuItem(
+                    value: 'personal',
+                    child: Text('Personal'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'business',
+                    child: Text('Business'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'co-operation',
+                    child: Text('Co-operation'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'sport',
+                    child: Text('sport'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'hobby',
+                    child: Text('hobby'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'family',
+                    child: Text('family'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'other',
+                    child: Text('other'),
+                  ),
+                ],
+                onChanged: (value) => _contact?.contactType = value.toString(),
+              ),
               ElevatedButton(
                 onPressed: importFromPhone,
                 child: const Text('Import from Phone'),
