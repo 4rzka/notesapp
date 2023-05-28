@@ -55,6 +55,12 @@ const noteSchema = mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Todo'
         }
+    ],
+    contacts: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Contact'
+        }
     ]
 }, {
     timestamps: true
