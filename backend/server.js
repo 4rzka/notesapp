@@ -19,6 +19,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/api/notes', require('./routes/noteRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/tags', require('./routes/tagRoutes'));
+app.use('/api/todos', require('./routes/todoRoutes'));
 app.use('/api/contacts', require('./routes/contactRoutes'));
 
 app.use(errorHandler);
