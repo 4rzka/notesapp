@@ -15,6 +15,7 @@ class Note {
     this.todos,
     this.id,
     this.subnotes,
+    this.sharedto,
     this.v,
   });
 
@@ -30,6 +31,7 @@ class Note {
   List<dynamic>? subnotes;
   DateTime createdAt;
   DateTime updatedAt;
+  List<String>? sharedto;
   int? v;
 
   factory Note.fromJson(Map<String, dynamic> json) {
@@ -51,7 +53,7 @@ class Note {
       isStarted: json["isStarted"],
       isPinned: json["isPinned"],
       todos: json["todos"] != null
-          ? List<Todo>.from(json["todos"].map((x) => x))
+          ? List<Todo>.from(json["todos"].map((x) => Todo.fromJson(x)))
           : [],
       id: json["_id"],
       subnotes: json["subnotes"] != null
@@ -59,6 +61,9 @@ class Note {
           : [],
       createdAt: DateTime.parse(json["createdAt"]),
       updatedAt: DateTime.parse(json["updatedAt"]),
+      sharedto: json["sharedto"] != null
+          ? List<String>.from(json["sharedto"].map((x) => x))
+          : [],
       v: json["__v"],
     );
   }
@@ -77,6 +82,8 @@ class Note {
             subnotes != null ? List<dynamic>.from(subnotes!.map((x) => x)) : [],
         "createdAt": createdAt.toIso8601String(),
         "updatedAt": updatedAt.toIso8601String(),
+        "sharedto":
+            sharedto != null ? List<dynamic>.from(sharedto!.map((x) => x)) : [],
         "__v": v,
       };
 }

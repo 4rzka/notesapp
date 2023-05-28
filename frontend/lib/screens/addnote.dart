@@ -20,13 +20,15 @@ class _AddNotePageState extends State<AddNotePage> {
 
   final FocusNode noteFocus = FocusNode();
   List<String> tags = [];
-  List<Todo> checkboxes = [];
+  List<Todo> todos = [];
 
   void addNewNote() {
     Note newNote = Note(
       title: titleController.text,
       content: contentController.text,
       tags: tags,
+      todos: todos,
+      sharedto: [], // TODO: SHARING NOTES
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -40,6 +42,8 @@ class _AddNotePageState extends State<AddNotePage> {
       title: titleController.text,
       content: contentController.text,
       tags: tags,
+      todos: todos,
+      sharedto: widget.note!.sharedto,
       createdAt: widget.note!.createdAt,
       updatedAt: DateTime.now(),
     );
@@ -57,9 +61,9 @@ class _AddNotePageState extends State<AddNotePage> {
     });
   }
 
-  void addTodo() {
+  void newTodo() {
     setState(() {
-      checkboxes.add(Todo(
+      todos.add(Todo(
         name: '',
         isChecked: false,
       ));
@@ -98,6 +102,54 @@ class _AddNotePageState extends State<AddNotePage> {
                 }
               },
               icon: const Icon(Icons.save),
+            ),
+            PopupMenuButton<int>(
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 1,
+                  child: Text("Add Tag"),
+                ),
+              ],
+              onSelected: (value) {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Add Tag'),
+                    content: Row(
+                      children: [
+                        Expanded(
+                            child: TextField(
+                          controller: tagController,
+                          onSubmitted: (val) {
+                            if (val != '') {
+                              setState(() {
+                                tags.add(val);
+                              });
+                              tagController.clear();
+                            }
+                          },
+                          decoration: const InputDecoration(
+                            hintText: 'Add Tag',
+                            border: InputBorder.none,
+                          ),
+                        )),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        ElevatedButton(
+                          onPressed: (() {
+                            if (tagController.text != '') {
+                              addTag();
+                            }
+                          }),
+                          child: const Text('Add'),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add),
             ),
             const IconButton(onPressed: null, icon: Icon(Icons.more_vert)),
           ],
@@ -140,43 +192,45 @@ class _AddNotePageState extends State<AddNotePage> {
                     border: InputBorder.none,
                   ),
                 )),
-                Row(
-                  children: [
-                    Expanded(
-                        child: TextField(
-                      controller: tagController,
-                      onSubmitted: (val) {
-                        if (val != '') {
-                          setState(() {
-                            tags.add(val);
-                          });
-                          tagController.clear();
-                        }
-                      },
-                      decoration: const InputDecoration(
-                        hintText: 'Add Tag',
-                        border: InputBorder.none,
-                      ),
-                    )),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    ElevatedButton(
-                      onPressed: (() {
-                        if (tagController.text != '') {
-                          addTag();
-                        }
-                      }),
-                      child: const Text('Add'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
+                if (todos.isNotEmpty)
+                  Padding(
+                      padding: const EdgeInsets.only(bottom: 40),
+                      child: Column(
+                        children: todos.map((todo) {
+                          return Row(
+                            children: [
+                              Checkbox(
+                                value: todo.isChecked,
+                                onChanged: (value) {
+                                  setState(() {
+                                    todo.isChecked = value!;
+                                  });
+                                },
+                              ),
+                              Expanded(
+                                child: TextField(
+                                  onChanged: (value) {
+                                    setState(() {
+                                      todo.name = value;
+                                    });
+                                  },
+                                  decoration: const InputDecoration(
+                                    hintText: 'Todo',
+                                    border: InputBorder.none,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                            ],
+                          );
+                        }).toList(),
+                      )),
                 if (tags.isNotEmpty)
                   Wrap(
                     children: tags
                         .map((tag) => Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.only(bottom: 40),
                               child: Chip(
                                 label: Text(tag),
                                 onDeleted: () {
@@ -188,51 +242,20 @@ class _AddNotePageState extends State<AddNotePage> {
                             ))
                         .toList(),
                   ),
-                if (checkboxes.isNotEmpty)
-                  Column(
-                    children: checkboxes.map((todo) {
-                      return Row(
-                        children: [
-                          Checkbox(
-                            value: todo.isChecked,
-                            onChanged: (value) {
-                              setState(() {
-                                todo.isChecked = value!;
-                              });
-                            },
-                          ),
-                          Expanded(
-                            child: TextField(
-                              onChanged: (value) {
-                                setState(() {
-                                  todo.name = value;
-                                });
-                              },
-                              decoration: const InputDecoration(
-                                hintText: 'Todo',
-                                border: InputBorder.none,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                        ],
-                      );
-                    }).toList(),
-                  ),
               ],
             ),
           ),
         ),
         bottomSheet: Container(
           height: 50,
+          color: const Color(0xFFE7E7E7),
           width: double.infinity,
-          color: Colors.blueAccent,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               IconButton(
                 onPressed: () {
-                  addTodo();
+                  newTodo();
                 },
                 icon: const Icon(Icons.check_box_outlined),
               ),

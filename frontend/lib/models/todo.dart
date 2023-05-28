@@ -3,7 +3,7 @@ import 'dart:convert';
 List<Todo> todoFromJson(String str) =>
     List<Todo>.from(json.decode(str).map((x) => Todo.fromJson(x)));
 
-String tagToJson(List<Todo> data) =>
+String todoToJson(List<Todo> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class Todo {
@@ -42,7 +42,7 @@ class Todo {
         "_id": id,
         "name": name,
         "user": user,
-        "notes": List<dynamic>.from(notes!.map((x) => x)),
+        "notes": notes != null ? List<dynamic>.from(notes!.map((x) => x)) : [],
         "isChecked": isChecked,
         "createdAt": createdAt != null ? createdAt!.toIso8601String() : "",
         "updatedAt": updatedAt != null ? updatedAt!.toIso8601String() : "",

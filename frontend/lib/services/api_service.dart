@@ -41,6 +41,7 @@ class ApiService {
 
   static Future<void> updateNote(Note note) async {
     Uri requestUrl = Uri.parse('$_baseUrl/notes/${note.id}');
+    print('JSON to be sent: ${json.encode(note.toJson())}');
     var response =
         await http.put(requestUrl, body: json.encode(note.toJson()), headers: {
       'Authorization': 'Bearer ${ApiService.token}',
