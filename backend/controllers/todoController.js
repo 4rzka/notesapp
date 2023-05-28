@@ -42,6 +42,15 @@ const createTodo = asyncHandler(async (req, res) => {
         user: req.user.id
     });
 
+    // add todo id to note
+    const note = await Note.findById(req.params.id);
+    if (note) {
+        note.todos.push(todo._id);
+        await note.save();
+    } else {
+        res.status(404);
+        throw new Error('Note not found');
+    }
     res.status(200).json(todo);
 }
 );
@@ -58,11 +67,14 @@ const updateTodo = asyncHandler(async (req, res) => {
     const { name, isChecked } = req.body;
 
     const todo = await Todo.findById(req.params.id);
+    const note = await Note.findById(req.params.noteid);
 
     if (todo) {
         todo.name = name || todo.name;
         todo.isChecked = isChecked || todo.isChecked;
+        note.todos.push(todo._id);
         await todo.save();
+        await note.save();
         res.status(200).json(todo);
     } else {
         res.status(404);
@@ -76,8 +88,11 @@ const updateTodo = asyncHandler(async (req, res) => {
 // @access  Private
 const deleteTodo = asyncHandler(async (req, res) => {
     const todo = await Todo.findById(req.params.id);
+    const note = await Note.findById(req.params.noteid);
     if (todo) {
         await todo.remove();
+        note.todos.pull(todo._id);
+        await note.save();
         res.status(200).json({ message: 'Todo removed' });
     }
     else {
