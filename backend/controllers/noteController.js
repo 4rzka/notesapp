@@ -35,7 +35,11 @@ const postNote = asyncHandler(async (req, res) => {
         user: req.user.id
     });
 
-    // create new tags
+    // create new tag if tag is provided in the request but not in the database
+    // if user does not provide any tags, then tagIds will be an empty array
+    if (!tags) {
+        tags = [];
+    }
     const tagIds = await Promise.all(tags.map(async (tag) => {
         const newTag = await Tag.create({ name: tag, user: req.user.id, notes: [note._id] });
         return newTag._id;
@@ -63,7 +67,7 @@ const postNote = asyncHandler(async (req, res) => {
 // @route   PUT /api/notes
 // @access  Private
 const updateNote = asyncHandler(async (req, res) => {
-    const { title, content, tags, todos, sharedto } = req.body;
+    let { title, content, tags, todos, sharedto, contacts } = req.body;
     const note = await Note.findById(req.params.id);
     if(!note) {
         res.status(404);
@@ -82,10 +86,12 @@ const updateNote = asyncHandler(async (req, res) => {
         throw new Error('Not authorized to update note');
     }
 
-    // update tags
+    // update tags if tags are provided in the request body and if the tags are not already in the note
     const existingTags = note.tags;
     const newTagIds = [];
-    
+    if (!tags) {
+        tags = [];
+    }
     for (const tag of tags) {
         let tagId;
         if(existingTags.includes(tag)) {
@@ -99,10 +105,12 @@ const updateNote = asyncHandler(async (req, res) => {
 
     note.tags = newTagIds;
 
-    // update todos
+    // update todos if todos are provided in the request body and if the todos are not already in the note
     const existingTodos = note.todos;
     const newTodoIds = [];
-
+    if (!todos) {
+        todos = [];
+    }
     for (const todo of todos) {
         let todoId;
         if(existingTodos.includes(todo)) {
@@ -120,6 +128,9 @@ const updateNote = asyncHandler(async (req, res) => {
     // We need to find the user ids of the users with the emails in sharedto
     // Then we add the user ids to the sharedto field of the note
     const sharedtoUserIds = [];
+    if (!sharedto) {
+        sharedto = [];
+    }
     for (const email of sharedto) {
         const user = await User.findOne({ email });
         if(!user) {
@@ -128,7 +139,12 @@ const updateNote = asyncHandler(async (req, res) => {
         }
         sharedtoUserIds.push(user._id);
     }
+    
     note.sharedto = sharedtoUserIds;
+
+    note.title = title || note.title;
+    note.content = content || note.content;
+    note.contacts = contacts || note.contacts;
 
     await note.save();
     res.status(200).json(note);
