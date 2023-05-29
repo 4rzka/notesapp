@@ -113,10 +113,13 @@ const updateNote = asyncHandler(async (req, res) => {
     }
     for (const todo of todos) {
         let todoId;
-        if(existingTodos.includes(todo)) {
-            todoId = todo;
+        const todoName = todo.name;
+        const existingTodo = existingTodos.find(t => t.name === todoName); 
+    
+        if (existingTodo) {
+            todoId = existingTodo._id; 
         } else {
-            const newTodo = await Todo.create({ name: todo, user: req.user.id, isChecked: false, notes: [note._id] });
+            const newTodo = await Todo.create({ name: todoName, user: req.user.id, isChecked: false, notes: [note._id] });
             todoId = newTodo._id;
         }
         newTodoIds.push(todoId);
