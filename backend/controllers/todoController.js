@@ -11,8 +11,23 @@ const getTodos = asyncHandler(async (req, res) => {
 }
 );
 
-// @desc    Get all todos by note id
+// @desc    Get todo by id
 // @route   GET /api/todos/:id
+// @access  Private
+const getTodoById = asyncHandler(async (req, res) => {
+    const todo = await Todo.findById(req.params.id);
+    if (todo) {
+        res.status(200).json(todo);
+    } else {
+        res.status(404);
+        throw new Error('Todo not found');
+    }
+}
+);
+
+
+// @desc    Get all todos by note id
+// @route   GET /api/todos/note/:id
 // @access  Private
 const getTodosOfNote = asyncHandler(async (req, res) => {
     const note = await Note.findById(req.params.id);
@@ -88,18 +103,26 @@ const updateTodo = asyncHandler(async (req, res) => {
 // @access  Private
 const deleteTodo = asyncHandler(async (req, res) => {
     const todo = await Todo.findById(req.params.id);
-    const note = await Note.findById(req.params.noteid);
-    if (todo) {
-        await todo.remove();
-        note.todos.pull(todo._id);
-        await note.save();
-        res.status(200).json({ message: 'Todo removed' });
-    }
-    else {
+    if (!todo) {
         res.status(404);
         throw new Error('Todo not found');
     }
-}
-);
 
-module.exports = { getTodos, getTodosOfNote, createTodo, updateTodo, deleteTodo };
+    if (todo.user.toString() !== req.user.id) {
+        res.status(401);
+        throw new Error('Not authorized to delete tag');
+    }
+
+      // remove todo from associated notes
+    if (todo.notes && todo.notes.length > 0) {
+        await Note.updateMany(
+            { _id: { $in: todo.notes }, user: req.user.id },
+            { $pull: { todos: todo._id } }
+        );
+    }
+
+    await Todo.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'Todo removed' });
+});
+
+module.exports = { getTodos, getTodosOfNote, createTodo, updateTodo, deleteTodo, getTodoById };
