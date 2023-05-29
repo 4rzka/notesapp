@@ -86,6 +86,9 @@ Backend Rest API
 - [ ] Setting page
 - [ ] Speech to text
 
+### To be implemented/fixed next
+- isChecked value is always false when creating todo
+- todos are not retrieved on frontend yet
 
 
 
