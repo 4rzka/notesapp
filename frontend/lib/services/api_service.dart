@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:frontend/models/note.dart';
+import 'package:frontend/models/todo.dart';
 import 'package:http/http.dart' as http;
 import 'dart:core';
 import '../variables/variables.dart';
@@ -12,66 +13,15 @@ class ApiService {
   static const String _registerUrl = '$_baseUrl/users/';
   static const String _tagsUrl = '$_baseUrl/tags';
   static const String _contactsUrl = '$_baseUrl/contacts';
+  static const String _notesUrl = '$_baseUrl/notes';
+  static const String _todosUrl = '$_baseUrl/todos';
+
   static String? token;
   static final Map<String, String> _headers = {
     'Content-Type': 'application/json',
   };
 
-  static Future<void> addNote(Note note) async {
-    Uri requestUrl = Uri.parse('$_baseUrl/notes');
-    print('Request URL: $requestUrl');
-    print('Request Body: ${note.toJson()}');
-    var response =
-        await http.post(requestUrl, body: jsonEncode(note.toJson()), headers: {
-      'Authorization': 'Bearer ${ApiService.token}',
-      'Content-Type': 'application/json',
-    });
-    print('Response Status Code: ${response.statusCode}');
-    print('Response Body: ${response.body}');
-  }
-
-  static Future<void> deleteNote(noteId) async {
-    Uri requestUrl = Uri.parse('$_baseUrl/notes/$noteId');
-    var response = await http.delete(requestUrl, headers: {
-      'Authorization': 'Bearer ${ApiService.token}',
-    });
-    print('Response Status Code: ${response.statusCode}');
-    print('Response Body: ${response.body}');
-  }
-
-  static Future<void> updateNote(Note note) async {
-    Uri requestUrl = Uri.parse('$_baseUrl/notes/${note.id}');
-    print('JSON to be sent: ${json.encode(note.toJson())}');
-    var response =
-        await http.put(requestUrl, body: json.encode(note.toJson()), headers: {
-      'Authorization': 'Bearer ${ApiService.token}',
-      'Content-Type': 'application/json',
-    });
-    print('Response Status Code: ${response.statusCode}');
-    print('Response Body: ${response.body}');
-  }
-
-  static Future<List<Note>> fetchNotes() async {
-    Uri requestUrl = Uri.parse('$_baseUrl/notes');
-    var response = await http.get(requestUrl, headers: {
-      'Authorization': 'Bearer ${ApiService.token}',
-    });
-    var decoded = jsonDecode(response.body);
-    List<Note> notes = [];
-
-    if (decoded is List) {
-      for (var noteMap in decoded) {
-        Note newNote = Note.fromJson(noteMap.cast<String, dynamic>());
-        notes.add(newNote);
-      }
-    } else if (decoded is Map) {
-      Note newNote = Note.fromJson(decoded.cast<String, dynamic>());
-      notes.add(newNote);
-    }
-
-    return notes;
-  }
-
+  // Authentication
   static Future<Map<String, dynamic>> login(
       String email, String password) async {
     final response = await http.post(
@@ -118,6 +68,64 @@ class ApiService {
     }
   }
 
+  // Notes
+  static Future<http.Response> addNote(Note note) async {
+    Uri requestUrl = Uri.parse('$_notesUrl/');
+    print('Request URL: $requestUrl');
+    print('Request Body: ${note.toJson()}');
+    var response =
+        await http.post(requestUrl, body: jsonEncode(note.toJson()), headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+      'Content-Type': 'application/json',
+    });
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+    return response;
+  }
+
+  static Future<void> deleteNote(noteId) async {
+    Uri requestUrl = Uri.parse('$_notesUrl/$noteId');
+    var response = await http.delete(requestUrl, headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+    });
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+  }
+
+  static Future<void> updateNote(Note note) async {
+    Uri requestUrl = Uri.parse('$_notesUrl/${note.id}');
+    print('JSON to be sent: ${json.encode(note.toJson())}');
+    var response =
+        await http.put(requestUrl, body: json.encode(note.toJson()), headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+      'Content-Type': 'application/json',
+    });
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+  }
+
+  static Future<List<Note>> fetchNotes() async {
+    Uri requestUrl = Uri.parse('$_notesUrl/');
+    var response = await http.get(requestUrl, headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+    });
+    var decoded = jsonDecode(response.body);
+    List<Note> notes = [];
+
+    if (decoded is List) {
+      for (var noteMap in decoded) {
+        Note newNote = Note.fromJson(noteMap.cast<String, dynamic>());
+        notes.add(newNote);
+      }
+    } else if (decoded is Map) {
+      Note newNote = Note.fromJson(decoded.cast<String, dynamic>());
+      notes.add(newNote);
+    }
+
+    return notes;
+  }
+
+  // Tags
   static Future<List<Tag>> fetchTags() async {
     Uri requestUrl = Uri.parse(_tagsUrl);
     var response = await http.get(requestUrl, headers: {
@@ -164,6 +172,71 @@ class ApiService {
     });
   }
 
+  // Todos
+  static Future<Todo> addTodo(todo) async {
+    Uri requestUrl = Uri.parse(_todosUrl);
+    var response = await http.post(requestUrl,
+        headers: {
+          'Authorization': 'Bearer ${ApiService.token}',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(todo.toJson()));
+
+    if (response.statusCode == 200) {
+      var decoded = jsonDecode(response.body);
+      Todo createdTodo = Todo.fromJson(decoded.cast<String, dynamic>());
+      return createdTodo;
+    } else {
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+      throw Exception('Failed to create todo');
+    }
+  }
+
+  static Future<List<Todo>> fetchTodosByNoteId(noteId) async {
+    Uri requestUrl = Uri.parse('$_todosUrl/note/$noteId');
+    var response = await http.get(requestUrl, headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+    });
+    var decoded = jsonDecode(response.body);
+    List<Todo> todos = [];
+
+    if (decoded is List) {
+      for (var todoMap in decoded) {
+        Todo newTodo = Todo.fromJson(todoMap.cast<String, dynamic>());
+        todos.add(newTodo);
+      }
+    } else if (decoded is Map) {
+      Todo newTodo = Todo.fromJson(decoded.cast<String, dynamic>());
+      todos.add(newTodo);
+    }
+
+    return todos;
+  }
+
+  static Future<Todo> fetchTodoByTodoId(todoId) async {
+    Uri requestUrl = Uri.parse('$_todosUrl/$todoId');
+    var response = await http.get(requestUrl, headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+    });
+    var decoded = jsonDecode(response.body);
+    Todo todo = Todo.fromJson(decoded.cast<String, dynamic>());
+
+    return todo;
+  }
+
+  static Future<void> updateTodo(Todo todo) async {
+    Uri requestUrl = Uri.parse('$_todosUrl/${todo.id}');
+    await http.put(requestUrl,
+        headers: {
+          'Authorization': 'Bearer ${ApiService.token}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(todo.toJson()));
+    print('JSON to be sent for updatetodo: ${json.encode(todo.toJson())}');
+  }
+
+  // Contacts
   static Future<List<Contact>> fetchContacts() async {
     Uri requestUrl = Uri.parse(_contactsUrl);
     var response = await http.get(requestUrl, headers: {

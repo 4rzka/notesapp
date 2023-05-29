@@ -3,6 +3,7 @@ import 'package:frontend/models/note.dart';
 import 'package:frontend/models/todo.dart';
 import 'package:provider/provider.dart';
 import '../providers/notes_provider.dart';
+import '../providers/todos_provider.dart';
 
 class AddNotePage extends StatefulWidget {
   final bool isUpdate;
@@ -22,17 +23,41 @@ class _AddNotePageState extends State<AddNotePage> {
   List<String> tags = [];
   List<Todo> todos = [];
 
-  void addNewNote() {
+  void addNewNote() async {
+    List<String> newTodoIds = [];
+
+    // If the note should include any todos, create them first.
+    if (todos.isNotEmpty) {
+      for (var todo in todos) {
+        Todo createdTodo =
+            await Provider.of<TodoProvider>(context, listen: false)
+                .addTodo(todo);
+        newTodoIds.add(createdTodo.id!);
+      }
+    }
+
     Note newNote = Note(
       title: titleController.text,
       content: contentController.text,
       tags: tags,
-      todos: todos,
+      todos: newTodoIds,
       sharedto: [], // TODO: SHARING NOTES
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
-    Provider.of<NotesProvider>(context, listen: false).addNote(newNote);
+
+    Note createdNote = await Provider.of<NotesProvider>(context, listen: false)
+        .addNote(newNote);
+
+    // Update todos with the created note's id
+    for (String todoId in newTodoIds) {
+      Todo todo = await Provider.of<TodoProvider>(context, listen: false)
+          .fetchTodoByTodoId(todoId);
+      todo.notes ??= [];
+      todo.notes!.add(createdNote.id!);
+      await Provider.of<TodoProvider>(context, listen: false).updateTodo(todo);
+    }
+
     Navigator.pop(context);
   }
 
@@ -42,7 +67,7 @@ class _AddNotePageState extends State<AddNotePage> {
       title: titleController.text,
       content: contentController.text,
       tags: tags,
-      todos: todos,
+      todos: widget.note!.todos,
       sharedto: widget.note!.sharedto,
       createdAt: widget.note!.createdAt,
       updatedAt: DateTime.now(),
@@ -50,6 +75,11 @@ class _AddNotePageState extends State<AddNotePage> {
 
     Provider.of<NotesProvider>(context, listen: false).updateNote(updatedNote);
     Navigator.pop(context);
+  }
+
+  Future<Todo> createTodo(Todo todo) async {
+    return await Provider.of<TodoProvider>(context, listen: false)
+        .addTodo(todo);
   }
 
   void addTag() {

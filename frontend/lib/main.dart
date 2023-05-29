@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/models/todo.dart';
 import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/notes_provider.dart';
 import 'package:frontend/providers/tag_provider.dart';
+import 'package:frontend/providers/todos_provider.dart';
 import 'package:frontend/screens/notes_homepage.dart';
 import 'package:frontend/screens/login.dart';
 import 'package:frontend/screens/register.dart';
@@ -25,6 +27,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<TagProvider>(
           create: (_) => TagProvider(),
+        ),
+        ChangeNotifierProvider<TodoProvider>(
+          create: (_) => TodoProvider(),
         ),
       ],
       child: MaterialApp(

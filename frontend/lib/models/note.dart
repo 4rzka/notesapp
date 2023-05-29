@@ -26,7 +26,7 @@ class Note {
   bool? isProject;
   bool? isStarted;
   bool? isPinned;
-  List<Todo>? todos;
+  List<String>? todos;
   String? id;
   List<dynamic>? subnotes;
   DateTime createdAt;
@@ -53,7 +53,7 @@ class Note {
       isStarted: json["isStarted"],
       isPinned: json["isPinned"],
       todos: json["todos"] != null
-          ? List<Todo>.from(json["todos"].map((x) => Todo.fromJson(x)))
+          ? List<String>.from(json["todos"].map((x) => x))
           : [],
       id: json["_id"],
       subnotes: json["subnotes"] != null

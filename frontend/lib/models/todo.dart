@@ -11,7 +11,7 @@ class Todo {
   String name;
   String? user;
   List<String>? notes;
-  bool? isChecked;
+  bool isChecked;
   DateTime? createdAt;
   DateTime? updatedAt;
   int? v;
@@ -21,7 +21,7 @@ class Todo {
     required this.name,
     this.user,
     this.notes,
-    this.isChecked,
+    required this.isChecked,
     this.createdAt,
     this.updatedAt,
     this.v,
