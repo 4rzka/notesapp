@@ -88,7 +88,8 @@ Backend Rest API
 
 ### To be implemented/fixed next
 - isChecked value is always false when creating todo
-- todos are not retrieved on frontend yet
+- ~~todos are not retrieved on frontend yet~~
+- editing todos
 
 
 
