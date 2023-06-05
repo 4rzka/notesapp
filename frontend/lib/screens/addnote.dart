@@ -84,6 +84,10 @@ class _AddNotePageState extends State<AddNotePage> {
         .addTodo(todo);
   }
 
+  void updateTodo(todo) async {
+    await Provider.of<TodoProvider>(context, listen: false).updateTodo(todo);
+  }
+
   void addTag() {
     setState(() {
       if (tagController.text.isNotEmpty) {
@@ -158,6 +162,17 @@ class _AddNotePageState extends State<AddNotePage> {
                   return;
                 }
                 if (widget.isUpdate) {
+                  // update todos first if any
+                  for (var todo in todos) {
+                    if (todo.id != null) {
+                      updateTodo(todo);
+                    } else {
+                      createTodo(todo).then((value) {
+                        todo.id = value.id;
+                        updateTodo(todo);
+                      });
+                    }
+                  }
                   updateNote();
                 } else {
                   addNewNote();
@@ -259,24 +274,27 @@ class _AddNotePageState extends State<AddNotePage> {
                   child: ListView.builder(
                     itemCount: todos.length,
                     itemBuilder: (context, index) {
+                      final todo = todos[index];
+                      todo.controller ??=
+                          TextEditingController(text: todo.name);
                       return Row(
                         children: [
                           Checkbox(
-                            value: todos[index].isChecked,
+                            value: todo.isChecked,
                             onChanged: (value) {
                               setState(() {
-                                todos[index].isChecked = value!;
+                                todo.isChecked = value ?? false;
                               });
                             },
                           ),
                           Expanded(
                             child: TextField(
                               key: todos[index].key,
-                              controller: todos[index].controller,
-                              focusNode: todos[index].focusNode,
+                              controller: todo.controller,
+                              focusNode: todo.focusNode,
                               onChanged: (value) {
                                 setState(() {
-                                  todos[index].name = value;
+                                  todo.name = value;
                                 });
                               },
                               decoration: const InputDecoration(
