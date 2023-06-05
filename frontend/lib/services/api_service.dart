@@ -46,7 +46,7 @@ class ApiService {
   }
 
   static void setToken(String token) {
-    _headers['Authorization'] = 'Bearer $token';
+    ApiService.token = token;
   }
 
   static Future<Map<String, dynamic>> register(
