@@ -18,11 +18,13 @@ class TodoProvider with ChangeNotifier {
     return createdTodo;
   }
 
-  void fetchTodosByNoteId(String noteId) async {
+  Future<List<Todo>> fetchTodosByNoteId(String noteId) async {
     try {
       todos = await ApiService.fetchTodosByNoteId(noteId);
+      return todos;
     } catch (e) {
       print(e);
+      throw Exception('Failed to fetch todos');
     } finally {
       isLoading = false;
       notifyListeners();

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
+
 List<Todo> todoFromJson(String str) =>
     List<Todo>.from(json.decode(str).map((x) => Todo.fromJson(x)));
 
@@ -15,6 +17,9 @@ class Todo {
   DateTime? createdAt;
   DateTime? updatedAt;
   int? v;
+  TextEditingController? controller;
+  FocusNode? focusNode;
+  UniqueKey? key;
 
   Todo({
     this.id,
@@ -25,6 +30,9 @@ class Todo {
     this.createdAt,
     this.updatedAt,
     this.v,
+    this.controller,
+    this.focusNode,
+    this.key,
   });
 
   factory Todo.fromJson(Map<String, dynamic> json) => Todo(

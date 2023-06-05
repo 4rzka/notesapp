@@ -8,7 +8,9 @@ import '../providers/todos_provider.dart';
 class AddNotePage extends StatefulWidget {
   final bool isUpdate;
   final Note? note;
-  const AddNotePage({super.key, required this.isUpdate, this.note});
+
+  const AddNotePage({Key? key, required this.isUpdate, this.note})
+      : super(key: key);
 
   @override
   State<AddNotePage> createState() => _AddNotePageState();
@@ -96,20 +98,47 @@ class _AddNotePageState extends State<AddNotePage> {
       todos.add(Todo(
         name: '',
         isChecked: false,
+        controller: TextEditingController(),
+        focusNode: FocusNode(),
+        key: UniqueKey(),
       ));
     });
   }
 
   @override
   void initState() {
+    super.initState();
     if (widget.isUpdate) {
       titleController.text = widget.note!.title;
       contentController.text = widget.note!.content;
       if (widget.note!.tags != null) {
         tags = widget.note!.tags!;
       }
+
+      if (widget.note!.id != null) {
+        Provider.of<TodoProvider>(context, listen: false)
+            .fetchTodosByNoteId(widget.note!.id!)
+            .then((value) {
+          print('fetchTodosByNoteId: $value');
+          setState(() {
+            todos = value;
+          });
+        }).catchError((error) {
+          print(error);
+        });
+      }
     }
-    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // dispose todos controllers and focus nodes
+    for (var todo in todos) {
+      todo.controller?.dispose();
+      todo.focusNode?.dispose();
+    }
+
+    super.dispose();
   }
 
   @override
@@ -117,7 +146,10 @@ class _AddNotePageState extends State<AddNotePage> {
     return Scaffold(
         appBar: AppBar(
           actions: [
-            const IconButton(onPressed: null, icon: Icon(Icons.push_pin)),
+            const IconButton(
+              onPressed: null,
+              icon: Icon(Icons.push_pin),
+            ),
             IconButton(
               onPressed: () {
                 // title and content should not be empty
@@ -223,39 +255,42 @@ class _AddNotePageState extends State<AddNotePage> {
                   ),
                 )),
                 const SizedBox(height: 10),
-                if (todos.isNotEmpty)
-                  Padding(
-                      padding: const EdgeInsets.only(bottom: 40),
-                      child: Column(
-                        children: todos.map((todo) {
-                          return Row(
-                            children: [
-                              Checkbox(
-                                value: todo.isChecked,
-                                onChanged: (value) {
-                                  setState(() {
-                                    todo.isChecked = value!;
-                                  });
-                                },
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: todos.length,
+                    itemBuilder: (context, index) {
+                      return Row(
+                        children: [
+                          Checkbox(
+                            value: todos[index].isChecked,
+                            onChanged: (value) {
+                              setState(() {
+                                todos[index].isChecked = value!;
+                              });
+                            },
+                          ),
+                          Expanded(
+                            child: TextField(
+                              key: todos[index].key,
+                              controller: todos[index].controller,
+                              focusNode: todos[index].focusNode,
+                              onChanged: (value) {
+                                setState(() {
+                                  todos[index].name = value;
+                                });
+                              },
+                              decoration: const InputDecoration(
+                                hintText: 'Todo',
+                                border: InputBorder.none,
                               ),
-                              Expanded(
-                                child: TextField(
-                                  onChanged: (value) {
-                                    setState(() {
-                                      todo.name = value;
-                                    });
-                                  },
-                                  decoration: const InputDecoration(
-                                    hintText: 'Todo',
-                                    border: InputBorder.none,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                            ],
-                          );
-                        }).toList(),
-                      )),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+                      );
+                    },
+                  ),
+                ),
                 if (tags.isNotEmpty)
                   Wrap(
                     children: tags
