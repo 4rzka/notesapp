@@ -62,6 +62,7 @@ Backend Rest API
 - [x] Contacts
 - [x] Note Sharing
 - [ ] Storing pictures, recordings etc
+- [ ] Logout
 
 ## Flutter App
 - [x] Notes homepage 
@@ -85,6 +86,7 @@ Backend Rest API
 - [ ] Sharing notes with contacts / other users
 - [ ] Setting page
 - [ ] Speech to text
+- [ ] Logout
 
 ### To be implemented/fixed next
 - isChecked value is always false when creating todo

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/todo.dart';
 import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/notes_provider.dart';
 import 'package:frontend/providers/tag_provider.dart';
@@ -10,17 +9,23 @@ import 'package:frontend/screens/register.dart';
 import 'package:frontend/services/api_service.dart';
 import 'package:provider/provider.dart';
 
-void main() => runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  AuthProvider authProvider = AuthProvider(apiService: ApiService());
+  await authProvider.initAuthProvider();
+  runApp(MyApp(authProvider: authProvider));
+}
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final AuthProvider authProvider;
+  const MyApp({Key? key, required this.authProvider}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>(
-          create: (_) => AuthProvider(apiService: ApiService()),
+          create: (_) => authProvider,
         ),
         ChangeNotifierProvider<NotesProvider>(
           create: (_) => NotesProvider(),
@@ -32,36 +37,23 @@ class MyApp extends StatelessWidget {
           create: (_) => TodoProvider(),
         ),
       ],
-      child: MaterialApp(
-        title: 'MyApp',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: Builder(
-          builder: (context) {
-            final auth = Provider.of<AuthProvider>(context);
-            return auth.isAuthenticated
-                ? MultiProvider(
-                    providers: [
-                      Provider.value(value: auth),
-                      Consumer<AuthProvider>(
-                        builder: (ctx, auth, _) => ChangeNotifierProvider.value(
-                          value: NotesProvider(),
-                          child: const NotesHomePage(),
-                        ),
-                      ),
-                    ],
-                    child: const NotesHomePage(),
-                  )
-                : const LoginScreen();
-          },
-        ),
-        routes: {
-          LoginScreen.routeName: (ctx) => const LoginScreen(),
-          RegisterScreen.routeName: (ctx) => const RegisterScreen(),
-          NotesHomePage.routeName: (ctx) => const NotesHomePage(),
-          // add other routes here if needed
+      child: Consumer<AuthProvider>(
+        builder: (context, auth, _) {
+          return MaterialApp(
+            title: 'MyApp',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+            ),
+            home: auth.isAuthenticated
+                ? const NotesHomePage()
+                : const LoginScreen(),
+            routes: {
+              LoginScreen.routeName: (ctx) => const LoginScreen(),
+              RegisterScreen.routeName: (ctx) => const RegisterScreen(),
+              NotesHomePage.routeName: (ctx) => const NotesHomePage(),
+            },
+          );
         },
       ),
     );
