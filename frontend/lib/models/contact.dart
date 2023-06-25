@@ -26,16 +26,16 @@ class Contact {
   String? id;
 
   factory Contact.fromJson(Map<String, dynamic> json) => Contact(
-        firstname: json['firstname'],
-        lastname: json['lastname'],
-        phone: json['phone'],
-        email: json['email'],
-        address: json['address'],
-        user: json['user'],
-        contactType: json['contactType'],
-        createdAt: DateTime.parse(json['createdAt']),
-        updatedAt: DateTime.parse(json['updatedAt']),
-      );
+      firstname: json['firstname'],
+      lastname: json['lastname'],
+      phone: json['phone'],
+      email: json['email'],
+      address: json['address'],
+      user: json['user'],
+      contactType: json['contactType'],
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+      id: json['_id']);
 
   Map<String, dynamic> toJson() => {
         'firstname': firstname,

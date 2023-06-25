@@ -32,9 +32,15 @@ class ContactProvider with ChangeNotifier {
     ApiService.deleteContact(contact.id);
   }
 
-  void fetchContacts() async {
+  Future<List<Contact>> fetchContacts() async {
     contacts = await ApiService.fetchContacts();
     isLoading = false;
     notifyListeners();
+    return contacts;
+  }
+
+  Future<Contact> fetchContact(String id) async {
+    Contact contact = await ApiService.fetchContactByContactId(id);
+    return contact;
   }
 }

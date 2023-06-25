@@ -1,5 +1,4 @@
 import 'dart:convert';
-import '/models/todo.dart';
 
 class Note {
   Note({
@@ -9,6 +8,7 @@ class Note {
     required this.updatedAt,
     this.user,
     this.tags,
+    this.contacts,
     this.isProject,
     this.isStarted,
     this.isPinned,
@@ -23,6 +23,7 @@ class Note {
   String content;
   String? user;
   List<String>? tags;
+  List<String>? contacts;
   bool? isProject;
   bool? isStarted;
   bool? isPinned;
@@ -49,6 +50,9 @@ class Note {
       tags: json["tags"] != null
           ? List<String>.from(json["tags"].map((x) => tagIdToNameMap[x] ?? ''))
           : [],
+      contacts: json["contacts"] != null
+          ? List<String>.from(json["contacts"].map((x) => x))
+          : [],
       isProject: json["isProject"],
       isStarted: json["isStarted"],
       isPinned: json["isPinned"],
@@ -73,11 +77,13 @@ class Note {
         "content": content,
         "user": user,
         "tags": tags != null ? List<dynamic>.from(tags!.map((x) => x)) : [],
+        "contacts":
+            contacts != null ? List<dynamic>.from(contacts!.map((x) => x)) : [],
         "isProject": isProject,
         "isStarted": isStarted,
         "isPinned": isPinned,
         "todos": todos != null ? List<dynamic>.from(todos!.map((x) => x)) : [],
-        "_id": id,
+        "_id": id ?? "",
         "subnotes":
             subnotes != null ? List<dynamic>.from(subnotes!.map((x) => x)) : [],
         "createdAt": createdAt.toIso8601String(),

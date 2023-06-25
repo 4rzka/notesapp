@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/auth_provider.dart';
+import 'package:frontend/providers/contact_provider.dart';
 import 'package:frontend/providers/notes_provider.dart';
 import 'package:frontend/providers/tag_provider.dart';
 import 'package:frontend/providers/todos_provider.dart';
@@ -35,6 +36,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<TodoProvider>(
           create: (_) => TodoProvider(),
+        ),
+        ChangeNotifierProvider<ContactProvider>(
+          create: (_) => ContactProvider(),
         ),
       ],
       child: Consumer<AuthProvider>(

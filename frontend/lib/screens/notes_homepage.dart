@@ -74,7 +74,7 @@ class _NotesHomePageState extends State<NotesHomePage> {
               title: const Text('All contacts'),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return ContactsPage();
+                  return const ContactsPage();
                 }));
               },
             ),

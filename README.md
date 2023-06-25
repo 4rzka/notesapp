@@ -75,26 +75,18 @@ Backend Rest API
 - [ ] Sorting notes by date, tags, contacts etc.
 - [ ] Show notes on grid or list
 - [x] Sidebar
-- [ ] Todos
+- [x] Todos
 - [ ] Reminders
 - [ ] Pictures
 - [ ] Recordings
 - [ ] Drawing
 - [ ] Note background image/color
 - [x] Contacts adding / importing from phone
-- [ ] Linking contacts to notes
+- [/] Linking contacts to notes
 - [ ] Sharing notes with contacts / other users
 - [ ] Setting page
 - [ ] Speech to text
 - [ ] Logout
-
-### To be implemented/fixed next
-- isChecked value is always false when creating todo
-- ~~todos are not retrieved on frontend yet~~
-- editing todos
-
-
-
 
 
 

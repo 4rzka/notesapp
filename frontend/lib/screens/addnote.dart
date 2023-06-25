@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/note.dart';
 import 'package:frontend/models/todo.dart';
+import 'package:frontend/models/contact.dart';
 import 'package:provider/provider.dart';
 import '../providers/notes_provider.dart';
 import '../providers/todos_provider.dart';
+import '../providers/contact_provider.dart';
 
 class AddNotePage extends StatefulWidget {
   final bool isUpdate;
@@ -24,9 +26,14 @@ class _AddNotePageState extends State<AddNotePage> {
   final FocusNode noteFocus = FocusNode();
   List<String> tags = [];
   List<Todo> todos = [];
+  List<Contact> linkedContacts = [];
 
   void addNewNote() async {
     List<String> newTodoIds = [];
+
+    // Include the ids of linked contacts in the note
+    List<String> linkedContactIds =
+        linkedContacts.map((contact) => contact.id!).toList();
 
     // If the note should include any todos, create them first.
     if (todos.isNotEmpty) {
@@ -44,6 +51,7 @@ class _AddNotePageState extends State<AddNotePage> {
       tags: tags,
       todos: newTodoIds,
       sharedto: [], // TODO: SHARING NOTES
+      contacts: linkedContactIds,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -64,6 +72,10 @@ class _AddNotePageState extends State<AddNotePage> {
   }
 
   void updateNote() {
+    // Include the ids of linked contacts in the note
+    List<String> linkedContactIds =
+        linkedContacts.map((contact) => contact.id!).toList();
+
     Note updatedNote = Note(
       id: widget.note!.id,
       title: titleController.text,
@@ -71,12 +83,50 @@ class _AddNotePageState extends State<AddNotePage> {
       tags: tags,
       todos: widget.note!.todos,
       sharedto: widget.note!.sharedto,
+      contacts: linkedContactIds,
       createdAt: widget.note!.createdAt,
       updatedAt: DateTime.now(),
     );
 
     Provider.of<NotesProvider>(context, listen: false).updateNote(updatedNote);
     Navigator.pop(context);
+  }
+
+  void addContact() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Add Contact'),
+        content: FutureBuilder<List<Contact>>(
+          future: Provider.of<ContactProvider>(context, listen: false)
+              .fetchContacts(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.error != null) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              return SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (ctx, i) => ListTile(
+                      title: Text(snapshot.data![i].firstname),
+                      onTap: () {
+                        setState(() {
+                          linkedContacts.add(snapshot.data![i]);
+                        });
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ));
+            }
+          },
+        ),
+      ),
+    );
   }
 
   Future<Todo> createTodo(Todo todo) async {
@@ -117,6 +167,20 @@ class _AddNotePageState extends State<AddNotePage> {
       contentController.text = widget.note!.content;
       if (widget.note!.tags != null) {
         tags = widget.note!.tags!;
+      }
+
+      if (widget.note!.contacts != null) {
+        for (var contactId in widget.note!.contacts!) {
+          Provider.of<ContactProvider>(context, listen: false)
+              .fetchContact(contactId)
+              .then((value) {
+            setState(() {
+              linkedContacts.add(value);
+            });
+          }).catchError((error) {
+            print(error);
+          });
+        }
       }
 
       if (widget.note!.id != null) {
@@ -186,45 +250,53 @@ class _AddNotePageState extends State<AddNotePage> {
                   value: 1,
                   child: Text("Add Tag"),
                 ),
+                const PopupMenuItem(
+                  value: 2,
+                  child: Text("Add Contact"),
+                ),
               ],
               onSelected: (value) {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: const Text('Add Tag'),
-                    content: Row(
-                      children: [
-                        Expanded(
-                            child: TextField(
-                          controller: tagController,
-                          onSubmitted: (val) {
-                            if (val != '') {
-                              setState(() {
-                                tags.add(val);
-                              });
-                              tagController.clear();
-                            }
-                          },
-                          decoration: const InputDecoration(
-                            hintText: 'Add Tag',
-                            border: InputBorder.none,
+                if (value == 1) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('Add Tag'),
+                      content: Row(
+                        children: [
+                          Expanded(
+                              child: TextField(
+                            controller: tagController,
+                            onSubmitted: (val) {
+                              if (val != '') {
+                                setState(() {
+                                  tags.add(val);
+                                });
+                                tagController.clear();
+                              }
+                            },
+                            decoration: const InputDecoration(
+                              hintText: 'Add Tag',
+                              border: InputBorder.none,
+                            ),
+                          )),
+                          const SizedBox(
+                            width: 10,
                           ),
-                        )),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        ElevatedButton(
-                          onPressed: (() {
-                            if (tagController.text != '') {
-                              addTag();
-                            }
-                          }),
-                          child: const Text('Add'),
-                        ),
-                      ],
+                          ElevatedButton(
+                            onPressed: (() {
+                              if (tagController.text != '') {
+                                addTag();
+                              }
+                            }),
+                            child: const Text('Add'),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
+                  );
+                } else if (value == 2) {
+                  addContact();
+                }
               },
               icon: const Icon(Icons.add),
             ),
@@ -325,6 +397,24 @@ class _AddNotePageState extends State<AddNotePage> {
                             ))
                         .toList(),
                   ),
+                Expanded(
+                    child: ListView.builder(
+                  itemCount: linkedContacts.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(linkedContacts[index].firstname),
+                      subtitle: Text(linkedContacts[index].lastname ?? ''),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () {
+                          setState(() {
+                            linkedContacts.removeAt(index);
+                          });
+                        },
+                      ),
+                    );
+                  },
+                ))
               ],
             ),
           ),
@@ -354,6 +444,34 @@ class _AddNotePageState extends State<AddNotePage> {
                 onPressed: () {},
                 icon: const Icon(Icons.attach_file),
               ),
+              if (linkedContacts.isNotEmpty)
+                IconButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                        title: const Text('Linked Contacts'),
+                        content: Column(
+                          children: linkedContacts
+                              .map((contact) => ListTile(
+                                    title: Text(contact.firstname),
+                                    subtitle: Text(contact.phone),
+                                    trailing: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          linkedContacts.remove(contact);
+                                        });
+                                      },
+                                      icon: const Icon(Icons.delete),
+                                    ),
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.person),
+                ),
             ],
           ),
         ));

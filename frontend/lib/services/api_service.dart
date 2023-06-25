@@ -289,4 +289,17 @@ class ApiService {
     print('Response Status Code: ${response.statusCode}');
     print('Response Body: ${response.body}');
   }
+
+  static Future<Contact> fetchContactByContactId(String contactId) async {
+    Uri requestUrl = Uri.parse('$_contactsUrl/$contactId');
+    var response = await http.get(requestUrl, headers: {
+      'Authorization': 'Bearer ${ApiService.token}',
+    });
+    if (response.statusCode == 200) {
+      var jsonResponse = json.decode(response.body);
+      return Contact.fromJson(jsonResponse);
+    } else {
+      throw Exception('Failed to load contact');
+    }
+  }
 }
