@@ -26,12 +26,13 @@ const postNote = asyncHandler(async (req, res) => {
         throw new Error('Content is required');
     }
 
-    const { title, content, tags, todos } = req.body;
+    const { title, content, tags, todos, contacts } = req.body;
 
     // create the note without tags and todos so that we can get the note id to add to tags and todos
     const note = await Note.create({
         title,
         content,
+        contacts,
         user: req.user.id
     });
 
@@ -45,15 +46,8 @@ const postNote = asyncHandler(async (req, res) => {
         return newTag._id;
     }));
 
-    // // create new todos
-    // const todoIds = await Promise.all(todos.map(async (todo) => {
-    //     const newTodo = await Todo.create({ name: todo, user: req.user.id, isChecked: false, notes: [note._id] });
-    //     return newTodo._id;
-    // }));
-
     // add note id to tags and todos
     await Tag.updateMany({ _id: { $in: tagIds } }, { $push: { notes: note._id } });
-    // await Todo.updateMany({ _id: { $in: todoIds } }, { $push: { notes: note._id } });
 
     // add tags and todos to note
     note.tags = tagIds;

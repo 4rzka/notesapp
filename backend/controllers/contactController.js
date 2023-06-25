@@ -11,6 +11,19 @@ const getContacts = asyncHandler(async (req, res) => {
 }
 );
 
+// @desc    Get a contact
+// @route   GET /api/contacts/:id
+// @access  Private
+const getContact = asyncHandler(async (req, res) => {
+    const contact = await Contact.findById(req.params.id);
+    if (!contact) {
+        res.status(404);
+        throw new Error('Contact not found');
+    }
+    res.json(contact);
+}
+);
+
 // @desc    Create a contact
 // @route   POST /api/contacts
 // @access  Private
@@ -92,4 +105,4 @@ const deleteContact = asyncHandler(async (req, res) => {
 }
 );
 
-module.exports = { getContacts, postContact, updateContact, deleteContact };
+module.exports = { getContacts, getContact, postContact, updateContact, deleteContact };
