@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/contact.dart' as contactmodel;
 import 'package:frontend/services/api_service.dart';
 
+import '../models/contact.dart';
+
 class EditContact extends StatefulWidget {
   final contactmodel.Contact contact;
 
@@ -18,7 +20,7 @@ class _EditContactState extends State<EditContact> {
   late TextEditingController _phoneController;
   late TextEditingController _emailController;
   late TextEditingController _addressController;
-  late String _contactType;
+  ContactType? _contactType;
 
   @override
   void initState() {
@@ -30,7 +32,7 @@ class _EditContactState extends State<EditContact> {
     _phoneController = TextEditingController(text: widget.contact.phone);
     _emailController = TextEditingController(text: widget.contact.email);
     _addressController = TextEditingController(text: widget.contact.address);
-    _contactType = widget.contact.contactType ?? '';
+    _contactType = widget.contact.contactType;
   }
 
   void _submitForm() {
@@ -100,42 +102,43 @@ class _EditContactState extends State<EditContact> {
                 onSaved: (value) => widget.contact.address = value,
               ),
               DropdownButtonFormField(
-                value: _contactType,
-                decoration: const InputDecoration(labelText: 'Contact Type'),
-                items: const [
-                  DropdownMenuItem(
-                    value: 'personal',
-                    child: Text('Personal'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'business',
-                    child: Text('Business'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'co-operation',
-                    child: Text('Co-operation'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'sport',
-                    child: Text('sport'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'hobby',
-                    child: Text('hobby'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'family',
-                    child: Text('family'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'other',
-                    child: Text('other'),
-                  ),
-                ],
-                onChanged: (value) =>
-                    setState(() => _contactType = value.toString()),
-                onSaved: (value) => widget.contact.contactType = _contactType,
-              ),
+                  value: _contactType,
+                  decoration: const InputDecoration(labelText: 'Contact Type'),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'personal',
+                      child: Text('Personal'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'business',
+                      child: Text('Business'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'co-operation',
+                      child: Text('Co-operation'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'sport',
+                      child: Text('sport'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'hobby',
+                      child: Text('hobby'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'family',
+                      child: Text('family'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'other',
+                      child: Text('other'),
+                    ),
+                  ],
+                  onChanged: (value) =>
+                      setState(() => _contactType = value as ContactType?),
+                  onSaved: (value) {
+                    widget.contact.contactType = value as ContactType;
+                  }),
               ElevatedButton(
                 onPressed: _submitForm,
                 child: const Text('Update'),

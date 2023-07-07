@@ -20,12 +20,43 @@ class _AddContactState extends State<AddContact> {
   final TextEditingController _addressController = TextEditingController();
 
   contactmodel.Contact? _contact;
+  contactmodel.ContactType? _selectedContactType;
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      print('_contact: $_contact');
+      print('_contact?.contactType: ${_contact?.contactType}');
+      _contact = contactmodel.Contact(
+        firstname: _firstNameController.text,
+        lastname: _lastNameController.text,
+        phone: _phoneController.text,
+        email: _emailController.text,
+        address: _addressController.text,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        contactType: _selectedContactType,
+      );
       if (_contact != null) {
-        ApiService.addContact(_contact!);
+        ApiService.addContact(_contact!).then((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Contact added successfully'),
+            ),
+          );
+        }).catchError((error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error.toString()),
+            ),
+          );
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please add all required fields'),
+          ),
+        );
       }
     }
   }
@@ -42,6 +73,27 @@ class _AddContactState extends State<AddContact> {
         // Assuming that the contact does not have an address in your app
         _addressController.text = '';
       }
+    }
+  }
+
+  contactmodel.ContactType? _parseContactType(String? value) {
+    switch (value) {
+      case 'personal':
+        return contactmodel.ContactType.personal;
+      case 'business':
+        return contactmodel.ContactType.business;
+      case 'co-operation':
+        return contactmodel.ContactType.coOperation;
+      case 'sport':
+        return contactmodel.ContactType.sport;
+      case 'hobby':
+        return contactmodel.ContactType.hobby;
+      case 'family':
+        return contactmodel.ContactType.family;
+      case 'other':
+        return contactmodel.ContactType.other;
+      default:
+        return null;
     }
   }
 
@@ -104,39 +156,50 @@ class _AddContactState extends State<AddContact> {
                 decoration: const InputDecoration(labelText: 'Address'),
                 onSaved: (value) => _contact?.address = value,
               ),
-              DropdownButtonFormField(
+              DropdownButtonFormField<contactmodel.ContactType>(
                 decoration: const InputDecoration(labelText: 'Contact Type'),
+                value: _selectedContactType,
                 items: const [
                   DropdownMenuItem(
-                    value: 'personal',
+                    value: contactmodel.ContactType.personal,
                     child: Text('Personal'),
                   ),
                   DropdownMenuItem(
-                    value: 'business',
+                    value: contactmodel.ContactType.business,
                     child: Text('Business'),
                   ),
                   DropdownMenuItem(
-                    value: 'co-operation',
+                    value: contactmodel.ContactType.coOperation,
                     child: Text('Co-operation'),
                   ),
                   DropdownMenuItem(
-                    value: 'sport',
-                    child: Text('sport'),
+                    value: contactmodel.ContactType.sport,
+                    child: Text('Sport'),
                   ),
                   DropdownMenuItem(
-                    value: 'hobby',
-                    child: Text('hobby'),
+                    value: contactmodel.ContactType.hobby,
+                    child: Text('Hobby'),
                   ),
                   DropdownMenuItem(
-                    value: 'family',
-                    child: Text('family'),
+                    value: contactmodel.ContactType.family,
+                    child: Text('Family'),
                   ),
                   DropdownMenuItem(
-                    value: 'other',
-                    child: Text('other'),
+                    value: contactmodel.ContactType.other,
+                    child: Text('Other'),
                   ),
                 ],
-                onChanged: (value) => _contact?.contactType = value.toString(),
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a contact type';
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  setState(() {
+                    _selectedContactType = value;
+                  });
+                },
               ),
               ElevatedButton(
                 onPressed: importFromPhone,
