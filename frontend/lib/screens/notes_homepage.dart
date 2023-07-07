@@ -3,6 +3,8 @@ import 'package:frontend/providers/notes_provider.dart';
 import 'package:frontend/screens/addcontact.dart';
 import 'package:frontend/screens/addtag.dart';
 import 'package:frontend/screens/contacts.dart';
+import 'package:frontend/screens/login.dart';
+import 'package:frontend/services/api_service.dart';
 import 'package:provider/provider.dart';
 import '../models/note.dart';
 import 'addnote.dart';
@@ -90,6 +92,16 @@ class _NotesHomePageState extends State<NotesHomePage> {
               title: const Text('Settings'),
               onTap: () {
                 Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Log out'),
+              onTap: () {
+                ApiService.logout();
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()));
               },
             ),
           ],

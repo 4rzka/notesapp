@@ -45,6 +45,10 @@ class ApiService {
     }
   }
 
+  static void logout() {
+    ApiService.token = null;
+  }
+
   static void setToken(String token) {
     ApiService.token = token;
   }
