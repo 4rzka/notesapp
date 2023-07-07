@@ -80,6 +80,18 @@ const getMe = asyncHandler(async (req, res) => {
     })
 })
 
+const logoutUser = asyncHandler(async (req, res) => {
+    res.cookie('token', 'none', {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true
+    })
+
+    res.status(200).json({
+        success: true,
+        data: {}
+    })
+})
+
 //Generate JWT
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -91,4 +103,5 @@ module.exports = {
     registerUser,
     loginUser,
     getMe,
+    logoutUser
 }
