@@ -38,7 +38,7 @@ class _NotesHomePageState extends State<NotesHomePage> {
               );
               if (result != null) {
                 setState(() {
-                  _searchQuery = result;
+                  notesProvider.setSearchQuery(result);
                 });
               }
             },
@@ -328,9 +328,13 @@ class NoteSearchDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    List<Note> filteredNotes = notes
-        .where((note) => note.title.contains(query))
-        .toList(); // Filter notes based on search query
+    List<Note> filteredNotes = notes.where((note) {
+      return note.title.contains(query) ||
+          note.content.contains(query) ||
+          note.tags?.any((tag) => tag.contains(query)) == true ||
+          note.contacts?.any((contact) => contact.contains(query)) == true;
+    }).toList();
+
     return ListView.builder(
       itemCount: filteredNotes.length,
       itemBuilder: (context, index) {
@@ -385,9 +389,15 @@ class NoteSearchDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    // Show suggestions based on search query
-    List<Note> filteredNotes =
-        notes.where((note) => note.title.contains(query)).toList();
+    List<Note> filteredNotes = notes.where((note) {
+      // Filter notes based on search query
+      return note.title.contains(query) ||
+          note.content.contains(query) ||
+          (note.tags != null && note.tags!.any((tag) => tag.contains(query))) ||
+          (note.contacts != null &&
+              note.contacts!.any((contact) => contact.contains(query)));
+    }).toList();
+
     return ListView.builder(
       itemCount: filteredNotes.length,
       itemBuilder: (context, index) => ListTile(

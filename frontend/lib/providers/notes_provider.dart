@@ -8,9 +8,17 @@ class NotesProvider with ChangeNotifier {
   List<Note> notes = [];
   bool isLoading = true;
   bool isListView = false;
+  String _searchQuery = '';
+
+  String get searchQuery => _searchQuery;
 
   NotesProvider() {
     fetchNotes();
+  }
+
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
   }
 
   Future<Note> addNote(Note note) async {
