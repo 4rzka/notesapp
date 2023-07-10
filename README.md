@@ -62,7 +62,7 @@ Backend Rest API
 - [x] Contacts
 - [x] Note Sharing
 - [ ] Storing pictures, recordings etc
-- [ ] Logout
+- [x] Logout
 
 ## Flutter App
 - [x] Notes homepage 
@@ -73,7 +73,7 @@ Backend Rest API
 - [x] Search functionality
 - [x] Sorting notes latest first
 - [ ] Sorting notes by date, tags, contacts etc.
-- [ ] Show notes on grid or list
+- [x] Show notes on grid or list
 - [x] Sidebar
 - [x] Todos
 - [ ] Reminders
@@ -82,11 +82,11 @@ Backend Rest API
 - [ ] Drawing
 - [ ] Note background image/color
 - [x] Contacts adding / importing from phone
-- [/] Linking contacts to notes
-- [ ] Sharing notes with contacts / other users
+- [x] Linking contacts to notes
+- [x] Sharing notes with contacts / other users
 - [ ] Setting page
 - [ ] Speech to text
-- [ ] Logout
+- [x] Logout
 
 
 
