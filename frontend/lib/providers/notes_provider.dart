@@ -7,6 +7,7 @@ import 'package:frontend/services/api_service.dart';
 class NotesProvider with ChangeNotifier {
   List<Note> notes = [];
   bool isLoading = true;
+  bool isListView = false;
 
   NotesProvider() {
     fetchNotes();
@@ -51,6 +52,11 @@ class NotesProvider with ChangeNotifier {
 
   void sortNotes() {
     notes.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    notifyListeners();
+  }
+
+  void toggleView() {
+    isListView = !isListView;
     notifyListeners();
   }
 }

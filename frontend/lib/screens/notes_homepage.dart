@@ -44,6 +44,18 @@ class _NotesHomePageState extends State<NotesHomePage> {
             },
             icon: const Icon(Icons.search),
           ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  notesProvider.toggleView();
+                },
+                icon: (notesProvider.isListView)
+                    ? const Icon(Icons.grid_view)
+                    : const Icon(Icons.list),
+              ),
+            ],
+          ),
         ],
       ),
       drawer: Drawer(
@@ -109,91 +121,159 @@ class _NotesHomePageState extends State<NotesHomePage> {
       ),
       body: (notesProvider.isLoading == false)
           ? SafeArea(
-              child: (notesProvider.notes.isNotEmpty)
-                  ? GridView.builder(
-                      shrinkWrap: true,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio:
-                            0.75, // Adjust the aspect ratio for the cards
-                      ),
-                      itemCount: notesProvider.notes.length,
-                      itemBuilder: (context, index) {
-                        Note currentNote = notesProvider.notes[index];
+              child: (filteredNotes.isNotEmpty)
+                  ? (notesProvider.isListView)
+                      ? ListView.builder(
+                          itemCount: filteredNotes.length,
+                          itemBuilder: (context, index) {
+                            Note currentNote = filteredNotes[index];
 
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                fullscreenDialog: true,
-                                builder: (context) => AddNotePage(
-                                  isUpdate: true,
-                                  note: currentNote,
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    fullscreenDialog: true,
+                                    builder: (context) => AddNotePage(
+                                      isUpdate: true,
+                                      note: currentNote,
+                                    ),
+                                  ),
+                                );
+                              },
+                              onLongPress: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('Delete Note'),
+                                      content: const Text(
+                                          'Are you sure you want to delete this note?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            notesProvider
+                                                .deleteNote(currentNote);
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text('Delete'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: ListTile(
+                                title: Text(
+                                  currentNote.title,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                subtitle: Text(
+                                  currentNote.content,
+                                  style: const TextStyle(fontSize: 14),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             );
                           },
-                          onLongPress: () {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('Delete Note'),
-                                    content: const Text(
-                                        'Are you sure you want to delete this note?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          notesProvider.deleteNote(currentNote);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Delete'),
-                                      ),
-                                    ],
-                                  );
-                                });
-                          },
-                          child: Container(
-                            color: Colors.blue,
-                            margin: const EdgeInsets.all(10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    currentNote.title,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    currentNote.content,
-                                    style: const TextStyle(fontSize: 14),
-                                    maxLines: 4,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
+                        )
+                      : GridView.builder(
+                          shrinkWrap: true,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio:
+                                0.75, // Adjust the aspect ratio for the cards
                           ),
-                        );
-                      },
-                    )
+                          itemCount: filteredNotes.length,
+                          itemBuilder: (context, index) {
+                            Note currentNote = filteredNotes[index];
+
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    fullscreenDialog: true,
+                                    builder: (context) => AddNotePage(
+                                      isUpdate: true,
+                                      note: currentNote,
+                                    ),
+                                  ),
+                                );
+                              },
+                              onLongPress: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('Delete Note'),
+                                      content: const Text(
+                                          'Are you sure you want to delete this note?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            notesProvider
+                                                .deleteNote(currentNote);
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text('Delete'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: Container(
+                                color: Colors.blue,
+                                margin: const EdgeInsets.all(10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        currentNote.title,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        currentNote.content,
+                                        style: const TextStyle(fontSize: 14),
+                                        maxLines: 4,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        )
                   : const Center(
                       child: Text('No notes found'),
                     ),
